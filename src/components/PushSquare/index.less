@@ -1,0 +1,61 @@
+.push-square {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 50%;
+    box-sizing: border-box;
+    padding: 10px;
+    border-radius: 6px;
+    box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+
+    .matrix {
+        display: flex;
+        flex-wrap: wrap;
+
+        .matrix-grid {
+            height: 98px;
+            user-select: none !important;
+            flex-basis: 98px;
+            border-radius: 5px;
+            color: #29b699;
+            font-size: 40px;
+            box-sizing: border-box;
+            display: flex;
+            margin-bottom: 1px;
+            margin-right: 1px;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid #29b699;
+
+            &:hover {
+                background: #29b699;
+                color: #FFF;
+            }
+        }
+
+        .matrix-grid-move-point {
+            border: 2px solid transparent;
+            background: transparent;
+
+            &:hover {
+                background: transparent;
+            }
+        }
+    }
+
+    .console {
+        margin-top: 10px;
+        color: #FFF;
+
+        .ant-form-item-label>label {
+            color: #FFF;
+        }
+
+        .ant-btn {
+            margin-right: 5px;
+        }
+    }
+}

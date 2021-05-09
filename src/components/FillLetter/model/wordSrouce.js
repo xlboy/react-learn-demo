@@ -1,0 +1,1 @@
+export default ['logistics', 'sorghum', 'gravity', 'flier', 'perigee', 'chargeable', 'phlegmatic', 'break', 'urinate', 'aerial', 'venomous', 'reverence']
