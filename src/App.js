@@ -6,11 +6,11 @@ import PushSquare from './components/PushSquare'
 const allComponent = [
   {
     name: '宫格拼图游戏',
-    Component: FillLetter
+    Component: PushSquare
   },
   {
     name: '单词分割填空',
-    Component: PushSquare
+    Component: FillLetter
   }
 ]
 const App = () => {
