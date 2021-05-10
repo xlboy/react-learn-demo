@@ -134,21 +134,6 @@ const PushSquare = () => {
                 ]
         }
 
-        function getMovePointIndex() {
-            let x, y
-            matrixSource.some((e, yIndex) => {
-                return e.some((ee, xIndex) => {
-                    if (ee.isMovePoint) {
-                        x = xIndex
-                        y = yIndex
-                        return true
-                    }
-                    return false
-                })
-            })
-            return { x, y }
-        }
-
         function isMatrixMove() {
             const { x, y } = movePointIndex
             return (
@@ -160,14 +145,14 @@ const PushSquare = () => {
 
     function initMatrixSource(matrixSize) {
         const matrixSource = []
-        const { height, width } = matrixSize ?? matrix.size
+        const { height: matrixH, width: matrixW } = matrixSize ?? matrix.size
         let id = 0
-        for (let i = 0; i < height; i++) {
+        for (let i = 0; i < matrixH; i++) {
             matrixSource[i] = []
-            for (let ii = 0; ii < width; ii++) {
+            for (let ii = 0; ii < matrixW; ii++) {
                 id++
                 const matrixGrid = { id, showContent: id, isMovePoint: false }
-                if (i === height - 1 && ii === width - 1) {
+                if (i === matrixH - 1 && ii === matrixW - 1) {
                     matrixGrid.isMovePoint = true
                 }
                 matrixSource[i].push(matrixGrid)
@@ -177,22 +162,81 @@ const PushSquare = () => {
     }
 
     function upsetMatrixSource(matrixSource) {
-        const upsetTarget = [...matrixSource]
-            .flat(Infinity)
-            .sort(() => 0.5 - Math.random())
-        const result = []
+        let { x: movePointX, y: movePointY } = getMovePointIndex()
+        const { width: matrixW, height: matrixH } = matrix.size
 
-        const { height, width } = matrix.size
-        let id = 0;
-        for (let i = 0; i < height; i++) {
-            result[i] = []
-            for (let ii = 0; ii < width; ii++) {
-                result[i].push(upsetTarget[id])
-                id++
+        let previous5Step = []
+        for (let i = 0; i < 10000; i++) {
+            const mayMobileIndexs = getMayMobileIndexs().filter(xyStr => !previous5Step.includes(xyStr))
+            while (true) {
+                if (mayMobileIndexs.length === 0) {
+                    previous5Step = []
+                    break;
+                }
+                const randomNum = ~~(Math.random() * mayMobileIndexs.length)
+                let [x, y] = mayMobileIndexs[randomNum].split(',')
+                x = +x
+                y = +y
+                const xyStr = `${x},${y}`
+                if (previous5Step.length === 5) {
+                    previous5Step = []
+                    exchangeMatrixGrid()
+                    break;
+                } else if (!previous5Step.includes(xyStr)) {
+                    previous5Step.push(xyStr)
+                    exchangeMatrixGrid()
+                    break;
+                }
+
+                function exchangeMatrixGrid() {
+                    ;[
+                        matrixSource[y][x],
+                        matrixSource[movePointY][movePointX]
+                    ] = [
+                            matrixSource[movePointY][movePointX],
+                            matrixSource[y][x],
+                        ]
+                    movePointX = x
+                    movePointY = y
+                }
+
             }
+
+        }
+        return matrixSource
+
+        function getMayMobileIndexs() {
+            const mayMobileindexs = []
+            if (movePointX - 1 !== -1) {
+                mayMobileindexs.push(`${movePointX - 1},${movePointY}`)
+            }
+            if (movePointX + 1 <= matrixW - 1) {
+                mayMobileindexs.push(`${movePointX + 1},${movePointY}`)
+            }
+            if (movePointY - 1 !== -1) {
+                mayMobileindexs.push(`${movePointX},${movePointY - 1}`)
+            }
+            if (movePointY + 1 <= matrixH - 1) {
+                mayMobileindexs.push(`${movePointX},${movePointY + 1}`)
+            }
+            return mayMobileindexs
         }
 
-        return result
+    }
+
+    function getMovePointIndex() {
+        let x, y
+        matrix.source.some((e, yIndex) => {
+            return e.some((ee, xIndex) => {
+                if (ee.isMovePoint) {
+                    x = xIndex
+                    y = yIndex
+                    return true
+                }
+                return false
+            })
+        })
+        return { x, y }
     }
 }
 
