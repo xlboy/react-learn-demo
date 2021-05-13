@@ -1,0 +1,25 @@
+.layout-sidebar {
+  width: 150px;
+  height: 100vh;
+  position: relative;
+  float: left;
+  &__mobile {
+    display: none;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+}
+
+@media all and (max-width: 800px) {
+  .layout-sidebar {
+    height: auto;
+    width: auto;
+    &__pc {
+      display: none;
+    }
+    &__mobile {
+      display: block;
+    }
+  }
+}
