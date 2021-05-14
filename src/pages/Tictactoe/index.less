@@ -1,0 +1,47 @@
+.tictactoe {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  left: 50%;
+  top: 50%;
+  color: #fff;
+  &-head {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    &__hint {
+      flex: 1;
+      text-align: center;
+    }
+  }
+  .ant-form-item-label > label {
+    color: #fff;
+  }
+  &-matrix {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-content: space-between;
+    flex-direction: row;
+    flex-wrap: wrap;
+    &__grid {
+      width: 98px;
+      float: left;
+      height: 98px;
+      box-sizing: border-box;
+      border: 2px solid #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 2em;
+    }
+  }
+
+  .bg-pink {
+    background: rgb(255, 220, 220);
+  }
+
+  .bg-purple {
+    background: rgb(220, 220, 255);
+  }
+}

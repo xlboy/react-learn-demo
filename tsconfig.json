@@ -1,36 +1,25 @@
 {
   "compilerOptions": {
-    "target": "es2017",
-    "module": "esnext",
-    "removeComments": false,
-    "preserveConstEnums": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "noImplicitAny": false,
-    "allowSyntheticDefaultImports": true,
-    "outDir": "lib",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strictNullChecks": true,
-    "sourceMap": true,
-    "baseUrl": ".",
-    "rootDir": ".",
-    "jsx": "preserve",
     "allowJs": true,
-    "resolveJsonModule": true,
-    "typeRoots": ["node_modules/@types", "global.d.ts", "src/typings"],
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "commonjs",
+    "outDir": "./dist",
+    "lib": ["es2017"],
+    "jsx": "preserve",
+    "removeComments": true,
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "preserveConstEnums": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "typeRoots": ["node_modules/@types", "typings", "@/typings"],
+    "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     },
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    "isolatedModules": true,
-    "noEmit": true
+    "strict": false
   },
-  "exclude": ["node_modules", "dist"],
+
   "compileOnSave": false,
-  "include": ["src"]
+  "includes": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

@@ -59,9 +59,9 @@ function FillLetter(): JSX.Element {
         wordLetters,
       }))
 
-      const isSuccess: boolean = wordLetters.map(e => e.letter === e.value).includes(false)
+      const isSuccess = wordLetters.map(e => e.letter === e.value).includes(false)
       if (!isSuccess) {
-        const newTopicIndex: number = state.topicIndex + 1
+        const newTopicIndex = state.topicIndex + 1
 
         if (newTopicIndex === wordSrouce.length) {
           message.warning('没题啦~请重新开始')

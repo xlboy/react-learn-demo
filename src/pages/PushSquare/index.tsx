@@ -1,6 +1,6 @@
 import { message, Form, Input, Button } from 'antd'
 import React, { useState } from 'react'
-import classnames from 'classnames'
+import classNames from 'classnames'
 import './index.less'
 import { Matrix } from './typings'
 
@@ -32,7 +32,7 @@ const PushSquare = () => {
           e.map((ee, xIndex) => (
             <div
               key={`${xIndex}${yIndex}`}
-              className={classnames('matrix-grid', { 'matrix-grid__move-point': ee.isMovePoint })}
+              className={classNames('matrix-grid', { 'matrix-grid__move-point': ee.isMovePoint })}
               onClick={matrixGridClick.bind(null, xIndex, yIndex)}
             >
               {!ee.isMovePoint && ee.showContent}
@@ -96,7 +96,7 @@ const PushSquare = () => {
 
   function matrixSizeChange(el): void {
     el.persist()
-    const value: number = +el.target.value
+    const value = +el.target.value
     setMatrix(state => {
       state.size = {
         width: value,
@@ -159,7 +159,7 @@ const PushSquare = () => {
   function initMatrixSource(matrixSize: Matrix.State['size']): Matrix.State['source'] {
     const matrixSource: Matrix.State['source'] = []
     const { height: matrixH, width: matrixW } = matrixSize ?? matrix.size
-    let id: number = 0
+    let id = 0
     for (let i = 0; i < matrixH; i++) {
       matrixSource[i] = []
       for (let ii = 0; ii < matrixW; ii++) {
@@ -191,7 +191,7 @@ const PushSquare = () => {
           previous5Step = []
           break
         }
-        const randomNum: number = ~~(Math.random() * mayMobileIndexs.length)
+        const randomNum = ~~(Math.random() * mayMobileIndexs.length)
         let [x, y] = mayMobileIndexs[randomNum].split(',') as any as number[]
         x = +x
         y = +y
