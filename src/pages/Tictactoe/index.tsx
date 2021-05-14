@@ -77,7 +77,7 @@ const Tictactoe_ = () => {
         ...state,
         currentPlayer: true,
         victoryPlayer: null,
-        martix: initMatrixSource(state.martixGridSize),
+        martixSource: initMatrixSource(state.martixGridSize),
       }
     })
   }

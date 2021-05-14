@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "module": "commonjs",
+    "module": "esnext",
     "outDir": "./dist",
-    "lib": ["es2017"],
+    "lib": [
+      "es2017"
+    ],
     "jsx": "preserve",
     "removeComments": true,
     "noImplicitAny": false,
@@ -11,15 +13,31 @@
     "preserveConstEnums": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": ["node_modules/@types", "typings", "@/typings"],
+    "typeRoots": [
+      "node_modules/@types",
+      "typings",
+      "@/typings"
+    ],
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
-    "strict": false
+    "strict": false,
+    "target": "es5",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
-
   "compileOnSave": false,
-  "includes": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "includes": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ],
+  "include": [
+    "src"
+  ]
 }
