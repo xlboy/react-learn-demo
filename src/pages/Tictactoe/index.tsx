@@ -4,7 +4,7 @@ import { useState } from 'react'
 import './index.less'
 import { Tictactoe } from './typings'
 
-const Tictactoe_ = () => {
+function Tictactoe_(): JSX.Element {
   const [state, setState] = useState<Tictactoe.State>({
     currentPlayer: true,
     victoryPlayer: null,

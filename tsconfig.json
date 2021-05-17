@@ -4,7 +4,8 @@
     "module": "esnext",
     "outDir": "./dist",
     "lib": [
-      "es2017"
+      "es2017",
+      "dom"
     ],
     "jsx": "preserve",
     "removeComments": true,
@@ -37,6 +38,7 @@
     "node_modules",
     "dist"
   ],
+  "extends": "./paths.json",
   "include": [
     "src"
   ]

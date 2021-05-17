@@ -1,0 +1,1 @@
+export type MoveHandleEvent = (el: HTMLDivElement) => void

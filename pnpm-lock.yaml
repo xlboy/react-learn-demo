@@ -16,6 +16,7 @@ specifiers:
   classnames: ^2.3.1
   craco-less: ^1.17.0
   less-loader: ^6.2.0
+  loadsh: ^0.0.4
   react: ^16.13.1
   react-dom: ^16.13.1
   react-router-dom: ^5.2.0
@@ -43,6 +44,9 @@ dependencies:
   react-router-dom: 5.2.0_react@16.14.0
   react-scripts: 3.4.1_typescript@3.7.7
   typescript: 3.7.7
+
+devDependencies:
+  loadsh: 0.0.4
 
 packages:
 
@@ -7108,6 +7112,11 @@ packages:
       emojis-list: 3.0.0
       json5: 2.2.0
     dev: false
+
+  /loadsh/0.0.4:
+    resolution: {integrity: sha512-U+wLL8InpfRalWrr+0SuhWgGt10M4OyAk6G8xCYo2rwpiHtxZkWiFpjei0vO463ghW8LPCdhqQxXlMy2qicAEw==}
+    deprecated: This is a typosquat on the popular Lodash package. This is not maintained nor is the original Lodash package.
+    dev: true
 
   /locate-path/2.0.0:
     resolution: {integrity: sha1-K1aLJl7slExtnA3pw9u7ygNUzY4=}

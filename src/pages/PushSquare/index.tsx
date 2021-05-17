@@ -14,7 +14,7 @@ interface HasBegunTime {
   seconds: number
 }
 
-const PushSquare = () => {
+function PushSquare(): JSX.Element {
   const [matrix, setMatrix] = useState<Matrix.State>({
     size: { ...initMatrixSize },
     source: initMatrixSource(initMatrixSize),

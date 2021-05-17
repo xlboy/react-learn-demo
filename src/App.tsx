@@ -20,6 +20,11 @@ const pages: Page[] = [
     Component: React.lazy(() => import(/* webpackChunkName:"Tictactoe" */ '@/pages/Tictactoe')),
   },
   {
+    name: '汉诺塔游戏',
+    href: 'tower',
+    Component: React.lazy(() => import(/* webpackChunkName:"Tower" */ '@/pages/Tower')),
+  },
+  {
     name: '单词分割填空',
     href: 'fill-letter',
     Component: React.lazy(() => import(/* webpackChunkName:"FillLetter" */ '@/pages/FillLetter')),
