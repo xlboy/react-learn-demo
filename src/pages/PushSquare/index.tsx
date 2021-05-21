@@ -69,7 +69,6 @@ function PushSquare(): JSX.Element {
 
     startTimekeeping()
   }
-
   function restart(): void {
     setMatrix(state => ({
       ...state,

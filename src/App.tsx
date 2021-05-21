@@ -10,6 +10,11 @@ interface Page {
 }
 const pages: Page[] = [
   {
+    name: '植物大战僵尸',
+    href: 'plant-zombies',
+    Component: React.lazy(() => import(/* webpackChunkName:"PlantVSZombies" */ '@/pages/PlantVSZombies')),
+  },
+  {
     name: '宫格拼图游戏',
     href: 'push-square',
     Component: React.lazy(() => import(/* webpackChunkName:"PushSquare" */ '@/pages/PushSquare')),

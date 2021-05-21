@@ -13,6 +13,12 @@ const path = require('path')
 
 module.exports = {
   reactScriptsVersion: 'react-scripts',
+  eslint: {
+    enable: false,
+  },
+  typescript: {
+    enableTypeChecking: false /* (default value)  */,
+  },
   webpack: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
