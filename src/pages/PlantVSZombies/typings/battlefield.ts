@@ -3,8 +3,8 @@ import { Plant } from './plant'
 
 export namespace Battlefield {
   export interface positionStyle {
-    left: `${number}px`
-    top: `${number}px`
+    left: string
+    top: string
   }
   export interface GridProps {
     id: Symbol

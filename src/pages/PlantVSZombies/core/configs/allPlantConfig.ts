@@ -1,8 +1,8 @@
 import Peas1 from '../../components/Battlefield/Components/Peas1'
+import Sunflower from '../../components/Battlefield/Components/Sunflower'
 import { Battlefield } from '../../typings/battlefield'
 import { Plant } from '../../typings/plant'
 import { Attack } from '../../typings/plant/attack'
-
 export interface PlantConfig {
   name: string
   image: string
@@ -13,7 +13,7 @@ export interface PlantConfig {
 }
 const allPlantConfig: PlantConfig[] = [
   {
-    name: '豌豆射手',
+    name: '豌豆射手1',
     image: require('@/assets/images/plant_vs_zombies/pic_peas_1.png'),
     sunNumber: 100,
     buyIntervalTime: 10,
@@ -21,8 +21,9 @@ const allPlantConfig: PlantConfig[] = [
     content: {
       type: Plant.Type.Attack,
       content: {
-        defenseValue: 100,
         type: Attack.Type.Far,
+        defenseValue: 100,
+        attackSpeed: 1,
         hurtValue: 20,
         attackDistance: {
           x: Attack.DistanceXAxisType.Front,
@@ -36,7 +37,7 @@ const allPlantConfig: PlantConfig[] = [
     image: require('@/assets/images/plant_vs_zombies/pic_sunflower.png'),
     sunNumber: 50,
     buyIntervalTime: 5,
-    Component: Peas1,
+    Component: Sunflower,
     content: {
       type: Plant.Type.Reproduction,
       content: {

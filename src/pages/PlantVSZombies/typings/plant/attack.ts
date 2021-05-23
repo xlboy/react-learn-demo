@@ -22,10 +22,11 @@ export namespace Attack {
     /* 立即销毁 (碰到即销毁) */
     InstantDestruction = 'InstantDestruction',
     /* 穿透 (碰到后还继续传递,穿透伤害过去) */
-    Through = 'Through'
+    Through = 'Through',
   }
   export interface Content extends Plant.Content.Base {
     type: Type
+    attackSpeed: number
     hurtValue: number
     /* 攻击距离 */
     attackDistance?: {
