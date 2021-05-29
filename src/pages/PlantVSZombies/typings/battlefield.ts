@@ -10,16 +10,13 @@ export namespace Battlefield {
     id: Symbol
     style: CSSProperties & positionStyle
     plant: {
-      Component(
-        props: {
-          [k in keyof PropsBase]: PropsBase[k]
-        }
-      ): JSX.Element
+      Component(props: PropsBase): JSX.Element
     } | null
   }
 
   export interface PropsBase {
     positionStyle: Battlefield.positionStyle
     battlefieldRef: React.MutableRefObject<HTMLDivElement>
+    clearPlant(plantTag: Symbol): void
   }
 }

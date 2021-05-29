@@ -1,18 +1,31 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Battlefield } from '@/pages/PlantVSZombies/typings/battlefield'
+import battlefieldCollideDetect, {
+  ActiveContent, CollideType,
+} from '@/pages/PlantVSZombies/core/battlefieldCollideDetect'
+import useAddRemoveActiveContent from '@/pages/PlantVSZombies/core/battlefieldCollideDetect/useAddRemoveActiveContent'
+import allPlantConfig from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
 interface Peas1Props extends Battlefield.PropsBase {}
+const plantName = '向日葵'
 
 function Peas1(props: Peas1Props): JSX.Element {
-  const { positionStyle, battlefieldRef } = props
+  const { positionStyle, battlefieldRef, clearPlant } = props
   type Skill = (...args: any) => React.ReactPortal
   const [skills, setSkills] = useState<Skill[]>([LaunchBullet])
+  const [isAttack, setIsAttack] = useState(false)
+  const [plantConfig] = useState(allPlantConfig.find(item => item.name === plantName))
+  const [plantTag, removePlantTag] = useAddRemoveActiveContent({
+    ...positionStyle,
+    type: 'plant',
+    content: plantConfig,
+    collideCallback: plantCollideCallback,
+  })
+
   return (
     <>
       <img src={require('@/assets/images/plant_vs_zombies/pic_peas_1.gif')} />
-      {skills.map((Component, index) => (
-        <Component key={index} />
-      ))}
+      {isAttack && skills.map((Component, index) => <Component key={index} />)}
     </>
   )
 
@@ -63,6 +76,12 @@ function Peas1(props: Peas1Props): JSX.Element {
     }
 
     return target ? ReactDOM.createPortal(<Component />, target) : null
+  }
+
+  function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
+    if (collideType === CollideType.AttackRange) {
+      console.log('进入了我的攻击范围，呜呜，我打不过他啊，艹')
+    }
   }
 }
 

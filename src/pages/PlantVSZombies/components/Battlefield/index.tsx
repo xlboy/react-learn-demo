@@ -6,6 +6,7 @@ import Sunflower from './Components/Sunflower'
 import useStore from '../../core/store/useStore'
 import classNames from 'classnames'
 import { useLocalStore, useObserver } from 'mobx-react'
+import battlefieldCollideDetect, { ActiveContent } from '../../core/battlefieldCollideDetect'
 
 function Battlefield_(): JSX.Element {
   const battlefieldRef = useRef<HTMLDivElement>()
@@ -24,27 +25,25 @@ function Battlefield_(): JSX.Element {
     const [gridState, setGridState] = useState<Battlefield.GridProps>(props)
     const gridRef = useRef<HTMLDivElement>()
     const [previewPlantSrc, setPreviewPlantSrc] = useState<null | string>(null)
-
-    const plantComponentProps = {
-      battlefieldRef,
-      positionStyle: {
-        left: gridState.style.left,
-        top: gridState.style.top,
-      },
-    }
+    const { style: gridStyle, plant: gridPlant } = gridState
 
     return (
       <div
         ref={gridRef}
         className={classNames('battlefield-grid', { 'z-index-5': previewPlantSrc !== null })}
-        style={gridState.style}
+        style={gridStyle}
         key={~~(Math.random() * 999999)}
-        onClick={onClick}
-        onMouseOver={onMouseOver}
-        onMouseOut={onMouseOut}
+        onClick={clickAddPlant}
+        onMouseOver={overShowPreview}
+        onMouseOut={outHidePreview}
       >
-        {gridState.plant !== null && (
-          <gridState.plant.Component {...plantComponentProps} key={~~(Math.random() * 999999)} />
+        {gridPlant !== null && (
+          <gridPlant.Component
+            battlefieldRef={battlefieldRef}
+            positionStyle={gridStyle}
+            clearPlant={clearPlant}
+            key={~~(Math.random() * 999999)}
+          />
         )}
         {previewPlantSrc !== null && (
           <img className='battlefield-grid__preview' src={previewPlantSrc} />
@@ -52,23 +51,23 @@ function Battlefield_(): JSX.Element {
       </div>
     )
 
-    function onClick(): void {
+    function clearPlant(): void {
+      setGridState(state => ({ ...state, plant: null }))
+    }
+
+    function clickAddPlant(): void {
       const { currentSelectPlant, setCurrentSelectPlant } = store
       if (currentSelectPlant) {
-        setGridState(state => {
-          return {
-            ...state,
-            plant: {
-              Component: currentSelectPlant.Component,
-            },
-          }
-        })
+        setGridState(state => ({
+          ...state,
+          plant: { Component: currentSelectPlant.Component },
+        }))
         setCurrentSelectPlant(null)
         setPreviewPlantSrc(null)
       }
     }
 
-    function onMouseOver(): void {
+    function overShowPreview(): void {
       const { currentSelectPlant } = store
       if (currentSelectPlant && previewPlantSrc === null && gridState.plant === null) {
         const { image } = currentSelectPlant
@@ -76,7 +75,7 @@ function Battlefield_(): JSX.Element {
       }
     }
 
-    function onMouseOut(): void {
+    function outHidePreview(): void {
       const { currentSelectPlant } = store
       if (currentSelectPlant) {
         setPreviewPlantSrc(null)
