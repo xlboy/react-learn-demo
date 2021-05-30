@@ -1,6 +1,6 @@
 import { Attack } from '../../typings/plant/attack'
 
-export interface ZombiesConfig {
+export interface ZombieConfig {
   name: string
   imagePath: string
   content: ZombiesContent
@@ -10,7 +10,7 @@ export interface ZombiesContent {
   defenseValue: number
   movementSpe: number
 }
-const allZombiesConfig: ZombiesConfig[] = [
+const allZombieConfig: ZombieConfig[] = [
   {
     name: '普通僵尸1',
     imagePath: '@/assets/images/plant_vs_zombies/pic_zombie-1.gif',
@@ -22,4 +22,4 @@ const allZombiesConfig: ZombiesConfig[] = [
   },
 ]
 
-export default allZombiesConfig
+export default allZombieConfig

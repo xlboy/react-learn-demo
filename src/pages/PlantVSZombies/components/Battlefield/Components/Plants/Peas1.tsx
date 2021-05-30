@@ -1,11 +1,11 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Battlefield } from '@/pages/PlantVSZombies/typings/battlefield'
-import battlefieldCollideDetect, {
-  ActiveContent, CollideType,
-} from '@/pages/PlantVSZombies/core/battlefieldCollideDetect'
-import useAddRemoveActiveContent from '@/pages/PlantVSZombies/core/battlefieldCollideDetect/useAddRemoveActiveContent'
+import gameController, {
+} from '@/pages/PlantVSZombies/core/gameController'
+import useAddRemoveActiveContent from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
 import allPlantConfig from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
+import { ActiveContent, CollideType } from '@/pages/PlantVSZombies/typings/gameController'
 interface Peas1Props extends Battlefield.PropsBase {}
 const plantName = '向日葵'
 

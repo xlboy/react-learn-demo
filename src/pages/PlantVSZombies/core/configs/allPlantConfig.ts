@@ -1,5 +1,5 @@
-import Peas1 from '../../components/Battlefield/Components/Peas1'
-import Sunflower from '../../components/Battlefield/Components/Sunflower'
+import Peas1 from '../../components/Battlefield/Components/Plants/Peas1'
+import Sunflower from '../../components/Battlefield/Components/Plants/Sunflower'
 import { Battlefield } from '../../typings/battlefield'
 import { Plant } from '../../typings/plant'
 import { Attack } from '../../typings/plant/attack'

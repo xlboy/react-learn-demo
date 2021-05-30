@@ -1,12 +1,13 @@
 import React, { useMemo, useRef, useState } from 'react'
 import './index.less'
 import { Battlefield } from '../../typings/battlefield'
-import Peas1 from './Components/Peas1'
-import Sunflower from './Components/Sunflower'
+import Peas1 from './Components/Plants/Peas1'
+import Sunflower from './Components/Plants/Sunflower'
 import useStore from '../../core/store/useStore'
 import classNames from 'classnames'
 import { useLocalStore, useObserver } from 'mobx-react'
-import battlefieldCollideDetect, { ActiveContent } from '../../core/battlefieldCollideDetect'
+import battlefieldCollideDetect, { ActiveContent } from '../../core/gameController'
+import ZombiesMain from './Components/Zombie/ZombieMain'
 
 function Battlefield_(): JSX.Element {
   const battlefieldRef = useRef<HTMLDivElement>()
@@ -16,12 +17,13 @@ function Battlefield_(): JSX.Element {
   return (
     <div className='battlefield' ref={battlefieldRef}>
       {battlefieldGrids.map((grid, index) => (
-        <BattlefieldGrid key={index} {...grid} />
+        <BattlefieldPlantGrid key={index} {...grid} />
       ))}
+      <ZombiesMain />
     </div>
   )
 
-  function BattlefieldGrid(props: Battlefield.GridProps): JSX.Element {
+  function BattlefieldPlantGrid(props: Battlefield.GridProps): JSX.Element {
     const [gridState, setGridState] = useState<Battlefield.GridProps>(props)
     const gridRef = useRef<HTMLDivElement>()
     const [previewPlantSrc, setPreviewPlantSrc] = useState<null | string>(null)
@@ -100,6 +102,7 @@ function Battlefield_(): JSX.Element {
     }
     return grids
   }
+  
 }
 
 export default Battlefield_

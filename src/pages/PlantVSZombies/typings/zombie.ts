@@ -1,6 +1,6 @@
 import { Battlefield } from "./battlefield";
 
-export namespace Zombies {
+export namespace Zombie {
     enum Type {
       /* 攻击 （豌豆射手等） */
       Attack = 'Attack',

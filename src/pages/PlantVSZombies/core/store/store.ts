@@ -5,18 +5,22 @@ import _ from 'loadsh'
 export class Store {
   sunNumber: number = 50
   plantCardList: PlantConfig[] = _.cloneDeep(allPlantConfig)
-
+  isStart: boolean = false
   currentSelectPlant: null | PlantConfig = null
   constructor() {
     makeAutoObservable(this)
   }
 
-  setSunNumber = (value: number) => {
+  setSunNumber = (value: number): void => {
     this.sunNumber = value
   }
 
-  setCurrentSelectPlant = (plantConfig: null | PlantConfig) => {
+  setCurrentSelectPlant = (plantConfig: null | PlantConfig): void => {
     this.currentSelectPlant = plantConfig
+  }
+
+  setIsStart = (value: boolean): void => {
+    this.isStart = value
   }
 }
 
