@@ -1,35 +1,47 @@
-import { Battlefield } from '@/pages/PlantVSZombies/typings/battlefield'
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import gameController from '@/pages/PlantVSZombies/core/gameController'
+import React, { Dispatch, SetStateAction, useEffect, useImperativeHandle, useState } from 'react'
 import ReactDOM from 'react-dom'
 
-interface ZombieBox {
-  isShow: boolean
+namespace ZombieSlot {
+  export interface Props {
+    slotRef: React.RefObject<{
+      setZombieComponent: Dispatch<SetStateAction<ZombieSlot.Component>>
+    }>
+  }
+
+  export type Component = null | ((...args: any[]) => JSX.Element)
 }
 
 function ZombieMain(): JSX.Element {
-  const allZombieBox = initAllZombieBox()
   return (
     <>
-      {allZombieBox.map((box, i) => (
-        <ZombieSlot key={i} />
+      {new Array(50).fill(0).map((_, i) => (
+        <CoreComponent key={i} />
       ))}
     </>
   )
 
-  function ZombieSlot(): JSX.Element {
-    return <></>
+  function CoreComponent(): JSX.Element {
+    const slotRef: ZombieSlot.Props['slotRef'] = React.createRef()
+    const slotTag = Symbol()
+    const addZombie = () => slotRef.current.setZombieComponent(() => <div>1</div>)
+    const removeZombie = () => slotRef.current.setZombieComponent(null)
+    gameController.addZombieSlots({
+      id: slotTag,
+      addZombie,
+      removeZombie,
+      hasZombie: false,
+    })
+    return <ZombieSlot slotRef={slotRef} />
   }
 
-  function initAllZombieBox(): ZombieBox[] {
-    const zombieBoxSrouce: ZombieBox[] = []
-    for (let i = 0; i < 100; i++) {
-      const zombieBoxObj: ZombieBox = {
-        isShow: false,
-      }
-
-      zombieBoxSrouce.push(zombieBoxObj)
-    }
-    return zombieBoxSrouce
+  function ZombieSlot(props: ZombieSlot.Props): JSX.Element {
+    const { slotRef } = props
+    const [ZombieComponent, setZombieComponent] = useState<ZombieSlot.Component>(null)
+    useImperativeHandle(slotRef, () => ({
+      setZombieComponent,
+    }))
+    return <>{ZombieComponent !== null && <ZombieComponent />}</>
   }
 }
 

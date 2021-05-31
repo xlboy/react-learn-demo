@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { makeAutoObservable, autorun } from 'mobx'
 import allPlantConfig, { PlantConfig } from '../configs/allPlantConfig'
 import _ from 'loadsh'
 
@@ -10,7 +10,6 @@ export class Store {
   constructor() {
     makeAutoObservable(this)
   }
-
   setSunNumber = (value: number): void => {
     this.sunNumber = value
   }

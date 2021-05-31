@@ -31,3 +31,10 @@ export type ActiveContent = {
   top: string
   collideCallback(collideType: CollideType, collideTarget?: ActiveContent)
 } & ActiveTarget
+
+export interface ZombieSlot {
+  id: symbol
+  hasZombie: boolean
+  addZombie()
+  removeZombie()
+}

@@ -4,7 +4,9 @@
 
 import { Plant } from '../../typings/plant'
 import { Attack } from '../../typings/plant/attack'
-import { ActiveContent, ActiveTypes, CollideType } from '../../typings/gameController'
+import { ActiveContent, ActiveTypes, CollideType, ZombieSlot } from '../../typings/gameController'
+import useStore from '../store/useStore'
+import { autorun } from 'mobx'
 
 class GameController {
   /* 装载记录当前活跃的内容(植物、打出的技能、僵尸) */
@@ -14,9 +16,45 @@ class GameController {
     [ActiveTypes.Skill]: [],
     [ActiveTypes.Zombie]: [],
   }
-  constructor() {}
+  private zombieSlots: ZombieSlot[] = []
+  private putZombieTimer: NodeJS.Timeout | null = null
 
-  detectContentCollide(): void {
+  constructor() {
+    const detect = () => this.detectContentCollide
+    ;(function detectLoop() {
+      detect()
+      requestAnimationFrame(detectLoop)
+    })()
+  }
+
+  startPutZombie(): void {
+    if (this.putZombieTimer === null) {
+      this.putZombieTimer = setInterval(() => {}, 3000)
+    }
+  }
+
+  stopPutZomzbie(): void {
+    clearInterval(this.putZombieTimer)
+    this.putZombieTimer = null
+  }
+
+  addZombieSlots(slot: ZombieSlot): void {
+    this.zombieSlots.push(slot)
+  }
+
+  addActiveContent(activeContent: ActiveContent): symbol {
+    const tag = Symbol()
+    this.activeContents[tag] = activeContent
+    this.updateActiveTags()
+    return tag
+  }
+
+  removeActiveContent(tag: symbol): void {
+    delete this.activeContents[tag]
+    this.updateActiveTags()
+  }
+
+  private detectContentCollide(): void {
     const plantActives = this.activeTags[ActiveTypes.Plant]
     const skillActives = this.activeTags[ActiveTypes.Skill]
     const zombieActives = this.activeTags[ActiveTypes.Zombie]
@@ -104,18 +142,6 @@ class GameController {
     }
   }
 
-  addActiveContent(activeContent: ActiveContent): symbol {
-    const tag = Symbol()
-    this.activeContents[tag] = activeContent
-    this.updateActiveTags()
-    return tag
-  }
-
-  removeActiveContent(tag: symbol): void {
-    delete this.activeContents[tag]
-    this.updateActiveTags()
-  }
-
   private updateActiveTags(): void {
     this.activeTags[ActiveTypes.Plant] = []
     this.activeTags[ActiveTypes.Skill] = []
@@ -129,10 +155,5 @@ class GameController {
 }
 
 const gameController = new GameController()
-
-;(function detectContentCollide() {
-  gameController.detectContentCollide()
-  requestAnimationFrame(detectContentCollide)
-})()
 
 export default gameController
