@@ -1,18 +1,24 @@
+import { ZombieConfig } from '@/pages/PlantVSZombies/core/configs/allZombieConfig'
 import gameController from '@/pages/PlantVSZombies/core/gameController'
+import { Zombie } from '@/pages/PlantVSZombies/typings/zombie'
 import React, { Dispatch, SetStateAction, useEffect, useImperativeHandle, useState } from 'react'
 import ReactDOM from 'react-dom'
 
 namespace ZombieSlot {
   export interface Props {
     slotRef: React.RefObject<{
-      setZombieComponent: Dispatch<SetStateAction<ZombieSlot.Component>>
+      setZombieConfig: Dispatch<SetStateAction<ZombieConfig>>
+      setStartPosition: Dispatch<SetStateAction<Zombie.PropsBase['positionStyle'] | null>>
     }>
+    removeZombie(): void
   }
-
-  export type Component = null | ((...args: any[]) => JSX.Element)
 }
 
-function ZombieMain(): JSX.Element {
+interface ZombieMainProps {
+  battlefieldRef: React.MutableRefObject<HTMLDivElement>
+}
+function ZombieMain(props: ZombieMainProps): JSX.Element {
+  const { battlefieldRef } = props
   return (
     <>
       {new Array(50).fill(0).map((_, i) => (
@@ -24,24 +30,40 @@ function ZombieMain(): JSX.Element {
   function CoreComponent(): JSX.Element {
     const slotRef: ZombieSlot.Props['slotRef'] = React.createRef()
     const slotTag = Symbol()
-    const addZombie = () => slotRef.current.setZombieComponent(() => <div>1</div>)
-    const removeZombie = () => slotRef.current.setZombieComponent(null)
-    gameController.addZombieSlots({
+    const addZombie = (
+      zombieConfig: ZombieConfig,
+      startPosition: Zombie.PropsBase['positionStyle']
+    ) => {
+      slotRef.current.setZombieConfig(zombieConfig)
+      slotRef.current.setStartPosition(startPosition)
+    }
+    const removeZombie = () => slotRef.current.setZombieConfig(null)
+    // 在此处将僵尸槽位控制函数提供给 游戏控制器
+    gameController.addZombieSlot({
       id: slotTag,
       addZombie,
       removeZombie,
       hasZombie: false,
     })
-    return <ZombieSlot slotRef={slotRef} />
+    return <ZombieSlot slotRef={slotRef} removeZombie={removeZombie} />
   }
 
   function ZombieSlot(props: ZombieSlot.Props): JSX.Element {
-    const { slotRef } = props
-    const [ZombieComponent, setZombieComponent] = useState<ZombieSlot.Component>(null)
+    const { slotRef, removeZombie } = props
+    const [zombieConfig, setZombieConfig] = useState<ZombieConfig | null>(null)
+    const [startPosition, setStartPosition] =
+      useState<Zombie.PropsBase['positionStyle'] | null>(null)
     useImperativeHandle(slotRef, () => ({
-      setZombieComponent,
+      setZombieConfig,
+      setStartPosition,
     }))
-    return <>{ZombieComponent !== null && <ZombieComponent />}</>
+    const zombieComponentProps: Zombie.PropsBase = {
+      battlefieldRef,
+      removeZombie,
+      zombieConfig,
+      positionStyle: startPosition,
+    }
+    return <>{zombieConfig !== null && <zombieConfig.Component {...zombieComponentProps} />}</>
   }
 }
 

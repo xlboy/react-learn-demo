@@ -1,24 +1,25 @@
-import { Attack } from '../../typings/plant/attack'
+import OrdinaryZombie from '../../components/Battlefield/Components/Zombie/OrdinaryZombie'
+import { Zombie } from '../../typings/zombie'
 
 export interface ZombieConfig {
   name: string
-  imagePath: string
-  content: ZombiesContent
-}
-export interface ZombiesContent {
-  hurtValue: number
-  defenseValue: number
-  movementSpe: number
+  image: string
+  content: Zombie.Property
+  Component: (props: Zombie.PropsBase) => JSX.Element
 }
 const allZombieConfig: ZombieConfig[] = [
   {
     name: '普通僵尸1',
-    imagePath: '@/assets/images/plant_vs_zombies/pic_zombie-1.gif',
+    image: require('@/assets/images/plant_vs_zombies/pic_zombie-1.gif'),
     content: {
-      hurtValue: 20,
-      defenseValue: 100,
-      movementSpe: 1,
+      type: Zombie.Type.Ordinary,
+      content: {
+        hurtValue: 20,
+        defenseValue: 100,
+        moveSpeed: 1,
+      },
     },
+    Component: OrdinaryZombie,
   },
 ]
 

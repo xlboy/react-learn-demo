@@ -15,7 +15,7 @@ function Battlefield_(): JSX.Element {
       {battlefieldGrids.map((grid, index) => (
         <BattlefieldPlantGrid key={index} {...grid} />
       ))}
-      <ZombiesMain />
+      <ZombiesMain battlefieldRef={battlefieldRef} />
     </div>
   )
 

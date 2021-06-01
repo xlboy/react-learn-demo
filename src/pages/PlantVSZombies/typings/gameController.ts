@@ -1,5 +1,6 @@
 import { PlantConfig } from '../core/configs/allPlantConfig'
 import { ZombieConfig } from '../core/configs/allZombieConfig'
+import { Zombie } from './zombie'
 
 export enum CollideType {
   /**攻击范围 */
@@ -17,24 +18,27 @@ export enum ActiveTypes {
 type ActiveTarget =
   | {
       type: ActiveTypes.Plant
-      content?: PlantConfig
+      content: PlantConfig
     }
   | {
       type: ActiveTypes.Zombie
-      content?: ZombieConfig
+      content: ZombieConfig
     }
   | {
       type: ActiveTypes.Skill
+      content: {
+        hurtValue: number
+      }
     }
 export type ActiveContent = {
   left: string
   top: string
-  collideCallback(collideType: CollideType, collideTarget?: ActiveContent)
+  collideCallback(collideType: CollideType, collideTarget?: ActiveContent): void
 } & ActiveTarget
 
 export interface ZombieSlot {
   id: symbol
   hasZombie: boolean
-  addZombie()
-  removeZombie()
+  addZombie(zombieConfig: ZombieConfig, startPosition: Zombie.PropsBase['positionStyle']): void
+  removeZombie(): void
 }

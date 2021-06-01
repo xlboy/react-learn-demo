@@ -7,7 +7,11 @@ import { Attack } from '../../typings/plant/attack'
 import { ActiveContent, ActiveTypes, CollideType, ZombieSlot } from '../../typings/gameController'
 import useStore from '../store/useStore'
 import { autorun } from 'mobx'
-
+import allZombieConfig from '../configs/allZombieConfig'
+import { Zombie } from '../../typings/zombie'
+import { Battlefield } from '../../typings/battlefield'
+import isElementCollide from './utils/isElementCollide'
+import * as _ from 'lodash'
 class GameController {
   /* 装载记录当前活跃的内容(植物、打出的技能、僵尸) */
   private activeContents: Record<symbol, ActiveContent> = {}
@@ -20,25 +24,40 @@ class GameController {
   private putZombieTimer: NodeJS.Timeout | null = null
 
   constructor() {
-    const detect = () => this.detectContentCollide
-    ;(function detectLoop() {
-      detect()
-      requestAnimationFrame(detectLoop)
+    const detectCollide = () => this.detectContentCollide()
+    ;(function detectCollideLoop() {
+      detectCollide()
+      requestAnimationFrame(detectCollideLoop)
     })()
   }
 
   startPutZombie(): void {
     if (this.putZombieTimer === null) {
-      this.putZombieTimer = setInterval(() => {}, 3000)
+      const generateZombie = () => {
+        const notUseSlot = this.zombieSlots.find(slot => slot.hasZombie === false)
+        const zombie = allZombieConfig[~~(Math.random() * allZombieConfig.length)]
+        const startPosition: Zombie.PropsBase['positionStyle'] = {
+          left: '1040px',
+          top: `${110 * ~~(Math.random() * 5)}px`,
+        }
+        notUseSlot.hasZombie = true
+        notUseSlot.addZombie(zombie, startPosition)
+      }
+      generateZombie()
+      this.putZombieTimer = setInterval(generateZombie, 3000)
     }
   }
 
   stopPutZomzbie(): void {
     clearInterval(this.putZombieTimer)
     this.putZombieTimer = null
+    this.zombieSlots.forEach(slot => {
+      slot.removeZombie()
+      slot.hasZombie = false
+    })
   }
 
-  addZombieSlots(slot: ZombieSlot): void {
+  addZombieSlot(slot: ZombieSlot): void {
     this.zombieSlots.push(slot)
   }
 
@@ -54,20 +73,35 @@ class GameController {
     this.updateActiveTags()
   }
 
+  updateActiveContentPosition(tag: symbol, position: Battlefield.PropsBase['positionStyle']): void {
+    Object.assign(this.activeContents[tag], { ...position })
+  }
+
   private detectContentCollide(): void {
     const plantActives = this.activeTags[ActiveTypes.Plant]
     const skillActives = this.activeTags[ActiveTypes.Skill]
     const zombieActives = this.activeTags[ActiveTypes.Zombie]
     plantActives.forEach(plantTag => {
       const plantContent: ActiveContent = this.activeContents[plantTag]
+      if (zombieActives.length === 0) {
+        plantContent.collideCallback(CollideType.NotAttackRange)
+      } else {
+        zombieActives.forEach(zombieTag => {
+          const zombieContent: ActiveContent = this.activeContents[zombieTag]
+          plantAttackRangeDetect(plantContent, zombieContent)
+        })
+      }
+    })
+
+    skillActives.forEach(skillTag => {
+      const skillContent: ActiveContent = this.activeContents[skillTag]
+      plantActives.forEach(plantTag => {
+        const plantContent: ActiveContent = this.activeContents[plantTag]
+        plantSkillCollide(plantContent, skillContent)
+      })
       zombieActives.forEach(zombieTag => {
         const zombieContent: ActiveContent = this.activeContents[zombieTag]
-        plantAttackRangeDetect(plantContent, zombieContent)
-      })
-
-      skillActives.forEach(skillTag => {
-        const skillContent: ActiveContent = this.activeContents[skillTag]
-        plantSkillCollide(plantContent, skillContent)
+        skillZombieCollide(skillContent, zombieContent)
       })
     })
 
@@ -138,6 +172,17 @@ class GameController {
     /**植物与打出的技能碰巧，例如（豌豆射手射出的豆与火树相撞后，豆变成了火红色，伤害力加高） */
     function plantSkillCollide(plantContent: ActiveContent, skillContent: ActiveContent): void {
       if (plantContent.type === ActiveTypes.Plant && skillContent.type === ActiveTypes.Skill) {
+      }
+    }
+
+    function skillZombieCollide(skillContent: ActiveContent, zombieContent: ActiveContent): void {
+      const isCollide = isElementCollide(
+        _.pick(skillContent, ['left', 'top']),
+        _.pick(zombieContent, ['left', 'top'])
+      )
+      if (isCollide) {
+        skillContent.collideCallback(CollideType.XYAxleCollide, zombieContent)
+        zombieContent.collideCallback(CollideType.XYAxleCollide, skillContent)
       }
     }
   }

@@ -24,7 +24,7 @@ const allPlantConfig: PlantConfig[] = [
         type: Attack.Type.Far,
         defenseValue: 100,
         attackSpeed: 1,
-        hurtValue: 20,
+        hurtValue: 50,
         attackDistance: {
           x: Attack.DistanceXAxisType.Front,
           y: Attack.DistanceYAxisType.CurrentLine,

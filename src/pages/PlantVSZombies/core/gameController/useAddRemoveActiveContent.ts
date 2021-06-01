@@ -1,16 +1,20 @@
 import { useState } from 'react'
-import battlefieldCollideDetect, { ActiveContent } from '.'
+import gameController from '.'
+import { ActiveContent } from '../../typings/gameController'
 
-function useAddRemoveActiveContent(activeContent: ActiveContent) {
-  const [activeContentTag, setPlantTag] = useState<symbol | null>(() => {
-    return battlefieldCollideDetect.addActiveContent(activeContent)
-  })
+function useAddRemoveActiveContent(
+  activeContent: ActiveContent
+): [symbol, () => void, (left: string, top: string) => void] {
+  const activeContentTag = gameController.addActiveContent(activeContent)
 
   const removeActiveContent = () => {
-    battlefieldCollideDetect.removeActiveContent(activeContentTag)
+    gameController.removeActiveContent(activeContentTag)
   }
 
-  return [activeContentTag, removeActiveContent]
+  const updateActiveContentPosition = (left: string, top: string) => {
+    gameController.updateActiveContentPosition(activeContentTag, { left, top })
+  }
+  return [activeContentTag, removeActiveContent, updateActiveContentPosition]
 }
 
 export default useAddRemoveActiveContent

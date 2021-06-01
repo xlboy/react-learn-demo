@@ -55,7 +55,9 @@
   },
   "homepage": "./",
   "devDependencies": {
+    "@types/lodash": "^4.14.170",
     "craco-less": "^1.17.1",
-    "loadsh": "^0.0.4"
+    "loadsh": "^0.0.4",
+    "lodash": "^4.17.21"
   }
 }

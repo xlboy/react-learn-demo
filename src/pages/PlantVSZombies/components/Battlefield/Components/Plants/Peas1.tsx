@@ -1,13 +1,18 @@
 import React, { CSSProperties, useEffect, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Battlefield } from '@/pages/PlantVSZombies/typings/battlefield'
-import gameController, {
-} from '@/pages/PlantVSZombies/core/gameController'
+import gameController from '@/pages/PlantVSZombies/core/gameController'
 import useAddRemoveActiveContent from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
 import allPlantConfig from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
-import { ActiveContent, CollideType } from '@/pages/PlantVSZombies/typings/gameController'
+import {
+  ActiveContent,
+  ActiveTypes,
+  CollideType,
+} from '@/pages/PlantVSZombies/typings/gameController'
+import { Plant } from '@/pages/PlantVSZombies/typings/plant'
+import { Attack } from '@/pages/PlantVSZombies/typings/plant/attack'
 interface Peas1Props extends Battlefield.PropsBase {}
-const plantName = '向日葵'
+const plantName = '豌豆射手1'
 
 function Peas1(props: Peas1Props): JSX.Element {
   const { positionStyle, battlefieldRef, clearPlant } = props
@@ -15,9 +20,10 @@ function Peas1(props: Peas1Props): JSX.Element {
   const [skills, setSkills] = useState<Skill[]>([LaunchBullet])
   const [isAttack, setIsAttack] = useState(false)
   const [plantConfig] = useState(allPlantConfig.find(item => item.name === plantName))
-  const [plantTag, removePlantTag] = useAddRemoveActiveContent({
+  const hurtValue = (plantConfig.content.content as Attack.Content).hurtValue
+  const [, removePlantTag] = useAddRemoveActiveContent({
     ...positionStyle,
-    type: 'plant',
+    type: ActiveTypes.Plant,
     content: plantConfig,
     collideCallback: plantCollideCallback,
   })
@@ -31,12 +37,16 @@ function Peas1(props: Peas1Props): JSX.Element {
 
   function LaunchBullet(props: { index: number }): React.ReactPortal {
     const { index } = props
-    const [target, setTarget] = useState<HTMLDivElement>(null)
-    useEffect(() => {
-      setTarget(battlefieldRef.current)
-    }, [])
+    const [skillTag, removeSkillTag, updateSkillPosition] = useAddRemoveActiveContent({
+      ...positionStyle,
+      type: ActiveTypes.Skill,
+      content: { hurtValue },
+      collideCallback: skillCollideCallback,
+    })
 
-    const Component = () => {
+    return ReactDOM.createPortal(<Component />, battlefieldRef.current)
+
+    function Component(): JSX.Element {
       const style: CSSProperties = {
         position: 'absolute',
         left: `${parseInt(positionStyle.left) + 50}px`,
@@ -44,23 +54,17 @@ function Peas1(props: Peas1Props): JSX.Element {
         zIndex: 3,
       }
       const imgRef = useRef<HTMLImageElement>()
+      let previousPosition: Battlefield.PropsBase['positionStyle'] = { ...positionStyle }
       useEffect(() => {
         ;(function animloop() {
           if (imgRef.current !== null) {
-            const { left } = imgRef.current.style
-            Object.assign(imgRef.current.style, {
-              left: `${parseInt(left) + 15}px`,
-            })
-
-            void (function verifBeyondLimit() {
-              if (parseInt(left) > 1160) {
-                setSkills(state => {
-                  // state.splice(index, 1)
-                  return [...state]
-                })
-              }
-            })()
-
+            previousPosition.left = `${parseInt(previousPosition.left) + 15}px`
+            imgRef.current.style.left = previousPosition.left
+            updateSkillPosition(previousPosition.left, previousPosition.top)
+            // 检测子弹是否超出地图了，若超出了则重新发射
+            if (parseInt(previousPosition.left) > 1160) {
+              setSkills(state => [...state])
+            }
             requestAnimationFrame(animloop)
           }
         })()
@@ -74,13 +78,23 @@ function Peas1(props: Peas1Props): JSX.Element {
         />
       )
     }
-
-    return target ? ReactDOM.createPortal(<Component />, target) : null
+    function skillCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
+      if (collideType === CollideType.XYAxleCollide) {
+        switch (collideTarget.type) {
+          case ActiveTypes.Zombie:
+            removeSkillTag()
+            setSkills(state => [...state])
+            return
+        }
+      }
+    }
   }
 
   function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
-    if (collideType === CollideType.AttackRange) {
-      console.log('进入了我的攻击范围，呜呜，我打不过他啊，艹')
+    if (collideType === CollideType.AttackRange && !isAttack) {
+      setIsAttack(true)
+    } else if (collideType === CollideType.NotAttackRange && isAttack) {
+      setIsAttack(false)
     }
   }
 }

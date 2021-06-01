@@ -7,6 +7,7 @@ specifiers:
   '@testing-library/react': ^9.3.2
   '@testing-library/user-event': ^7.1.2
   '@types/jest': ^24.0.0
+  '@types/lodash': ^4.14.170
   '@types/node': ^12.0.0
   '@types/react': ^16.9.0
   '@types/react-dom': ^16.9.0
@@ -17,6 +18,7 @@ specifiers:
   craco-less: ^1.17.0
   less-loader: ^6.2.0
   loadsh: ^0.0.4
+  lodash: ^4.17.21
   mobx: ^6.3.1
   mobx-react: ^7.2.0
   react: ^16.13.1
@@ -50,7 +52,9 @@ dependencies:
   typescript: 4.1.5
 
 devDependencies:
+  '@types/lodash': 4.14.170
   loadsh: 0.0.4
+  lodash: 4.17.21
 
 packages:
 
@@ -1922,6 +1926,10 @@ packages:
   /@types/json-schema/7.0.7:
     resolution: {integrity: sha512-cxWFQVseBm6O9Gbw1IWb8r6OS4OhSt3hPZLkFApLjM8TEXROBuQGLAH2i2gZpcXdLBIrpXuTDhH7Vbm1iXmNGA==}
     dev: false
+
+  /@types/lodash/4.14.170:
+    resolution: {integrity: sha512-bpcvu/MKHHeYX+qeEN8GE7DIravODWdACVA1ctevD8CN24RhPZIKMn9ntfAsrvLfSX3cR5RrBKAbYm9bGs0A+Q==}
+    dev: true
 
   /@types/minimatch/3.0.4:
     resolution: {integrity: sha512-1z8k4wzFnNjVK/tlxvrWuK5WMt6mydWWP7+zvH5eFep4oj+UkrfiJTRtjCeBXNpwaA/FYqqtb4/QS4ianFpIRA==}
@@ -7180,7 +7188,6 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
-    dev: false
 
   /loglevel/1.7.1:
     resolution: {integrity: sha512-Hesni4s5UkWkwCGJMQGAh71PaLUmKFM60dHvq0zi/vDhhrzuk+4GgNbTXJ12YYQJn6ZKBDNIjYcuQGKudvqrIw==}
