@@ -34,7 +34,6 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
     isCollide: false,
     isDeath: false
   }
-  console.log('zombieBase', zombieBase)
   const [, removeZombieTag, updateActiveContentPosition] = useAddRemoveActiveContent({
     ...positionStyle,
     type: ActiveTypes.Zombie,

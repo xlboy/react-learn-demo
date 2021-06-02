@@ -36,15 +36,20 @@ function ZombieMain(props: ZombieMainProps): JSX.Element {
     ) => {
       slotRef.current.setZombieConfig(zombieConfig)
       slotRef.current.setStartPosition(startPosition)
+      zombieSlotObj.hasZombie = true
     }
-    const removeZombie = () => slotRef.current.setZombieConfig(null)
-    // 在此处将僵尸槽位控制函数提供给 游戏控制器
-    gameController.addZombieSlot({
+    const removeZombie = () => {
+      slotRef.current.setZombieConfig(null)
+      zombieSlotObj.hasZombie = false
+    }
+    const zombieSlotObj = {
       id: slotTag,
       addZombie,
       removeZombie,
       hasZombie: false,
-    })
+    }
+    // 在此处将僵尸槽位控制函数提供给 游戏控制器
+    gameController.addZombieSlot(zombieSlotObj)
     return <ZombieSlot slotRef={slotRef} removeZombie={removeZombie} />
   }
 

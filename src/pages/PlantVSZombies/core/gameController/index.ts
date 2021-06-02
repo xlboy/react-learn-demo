@@ -27,7 +27,9 @@ class GameController {
     const detectCollide = () => this.detectContentCollide()
     ;(function detectCollideLoop() {
       detectCollide()
-      requestAnimationFrame(detectCollideLoop)
+      setTimeout(() => {
+        requestAnimationFrame(detectCollideLoop)
+      }, 20)
     })()
   }
 
@@ -35,16 +37,19 @@ class GameController {
     if (this.putZombieTimer === null) {
       const generateZombie = () => {
         const notUseSlot = this.zombieSlots.find(slot => slot.hasZombie === false)
-        const zombie = allZombieConfig[~~(Math.random() * allZombieConfig.length)]
-        const startPosition: Zombie.PropsBase['positionStyle'] = {
-          left: '1040px',
-          top: `${110 * ~~(Math.random() * 5)}px`,
+        if (notUseSlot) {
+          const zombie = allZombieConfig[~~(Math.random() * allZombieConfig.length)]
+          const startPosition: Zombie.PropsBase['positionStyle'] = {
+            left: '1040px',
+            top: `${110 * ~~(Math.random() * 5)}px`,
+          }
+          notUseSlot.addZombie(zombie, startPosition)
+        } else {
+          throw new Error("notUseSlot undefined");
         }
-        notUseSlot.hasZombie = true
-        notUseSlot.addZombie(zombie, startPosition)
       }
       generateZombie()
-      this.putZombieTimer = setInterval(generateZombie, 3000)
+      this.putZombieTimer = setInterval(generateZombie, 1500)
     }
   }
 
@@ -81,17 +86,20 @@ class GameController {
     const plantActives = this.activeTags[ActiveTypes.Plant]
     const skillActives = this.activeTags[ActiveTypes.Skill]
     const zombieActives = this.activeTags[ActiveTypes.Zombie]
-    plantActives.forEach(plantTag => {
+    stop: for (let i = 0; i < plantActives.length; i++) {
+      const plantTag = plantActives[i]
       const plantContent: ActiveContent = this.activeContents[plantTag]
       if (zombieActives.length === 0) {
         plantContent.collideCallback(CollideType.NotAttackRange)
       } else {
-        zombieActives.forEach(zombieTag => {
+        for (let i2 = 0; i2 < zombieActives.length; i2++) {
+          const zombieTag = zombieActives[i2]
           const zombieContent: ActiveContent = this.activeContents[zombieTag]
-          plantAttackRangeDetect(plantContent, zombieContent)
-        })
+          const isQuit = plantAttackRangeDetect(plantContent, zombieContent)
+          if (isQuit) break stop
+        }
       }
-    })
+    }
 
     skillActives.forEach(skillTag => {
       const skillContent: ActiveContent = this.activeContents[skillTag]
@@ -109,7 +117,7 @@ class GameController {
     function plantAttackRangeDetect(
       plantContent: ActiveContent,
       zombieContent: ActiveContent
-    ): void {
+    ): true | undefined {
       if (plantContent.type === ActiveTypes.Plant && zombieContent.type === ActiveTypes.Zombie) {
         const { content: srouceContent } = plantContent.content
         const isEqualLine = plantContent.top === zombieContent.top
@@ -157,14 +165,15 @@ class GameController {
             if (isXYAxisAttackRange) {
               plantContent.collideCallback(CollideType.AttackRange, zombieContent)
               zombieContent.collideCallback(CollideType.AttackRange, plantContent)
+              return true
+            } else {
+              plantContent.collideCallback(CollideType.NotAttackRange)
             }
           }
         } else if (srouceContent.type === Plant.Type.Reproduction) {
           plantContent.collideCallback(CollideType.AttackRange, zombieContent)
           zombieContent.collideCallback(CollideType.AttackRange, plantContent)
         } else if (srouceContent.type === Plant.Type.Defensive) {
-        } else {
-          plantContent.collideCallback(CollideType.NotAttackRange)
         }
       }
     }
