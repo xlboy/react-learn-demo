@@ -32,12 +32,13 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
     defenseValue: zombieConfig.content.content.defenseValue,
     isAttack: false,
     isCollide: false,
-    isDeath: false
+    isDeath: false,
   }
+  const testName = `${~~(Math.random() * 99999)}`
   const [, removeZombieTag, updateActiveContentPosition] = useAddRemoveActiveContent({
     ...positionStyle,
     type: ActiveTypes.Zombie,
-    content: zombieConfig,
+    content: { ...zombieConfig, testName },
     collideCallback: zombieCollideCallback,
   })
 
@@ -66,6 +67,7 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
 
       return (
         <div ref={zombieRef} className='zombie-grid' style={positionStyle}>
+        {testName}
           <img src={zombieConfig.image} />
         </div>
       )
@@ -91,7 +93,7 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
 
     function skillZombieCollide(skillHurtValue: number): void {
       zombieBase.defenseValue -= skillHurtValue
-      // 僵尸没血了，送走轮回 
+      // 僵尸没血了，送走轮回
       if (zombieBase.defenseValue <= 0) {
         zombieBase.isDeath = true
         removeZombieTag()

@@ -1,6 +1,7 @@
 import { ZombieConfig } from '@/pages/PlantVSZombies/core/configs/allZombieConfig'
 import gameController from '@/pages/PlantVSZombies/core/gameController'
 import { Zombie } from '@/pages/PlantVSZombies/typings/zombie'
+import _ from 'lodash'
 import React, { Dispatch, SetStateAction, useEffect, useImperativeHandle, useState } from 'react'
 import ReactDOM from 'react-dom'
 
@@ -26,7 +27,6 @@ function ZombieMain(props: ZombieMainProps): JSX.Element {
       ))}
     </>
   )
-
   function CoreComponent(): JSX.Element {
     const slotRef: ZombieSlot.Props['slotRef'] = React.createRef()
     const slotTag = Symbol()
@@ -66,9 +66,16 @@ function ZombieMain(props: ZombieMainProps): JSX.Element {
       battlefieldRef,
       removeZombie,
       zombieConfig,
-      positionStyle: startPosition,
+      positionStyle: { ...startPosition },
     }
-    return <>{zombieConfig !== null && <zombieConfig.Component {...zombieComponentProps} />}</>
+    // 此坑我留着…MD
+    return (
+      <>
+        {zombieConfig !== null && startPosition !== null && (
+          <zombieConfig.Component {...zombieComponentProps} />
+        )}
+      </>
+    )
   }
 }
 

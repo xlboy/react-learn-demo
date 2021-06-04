@@ -13,14 +13,22 @@ import { Plant } from '@/pages/PlantVSZombies/typings/plant'
 import { Attack } from '@/pages/PlantVSZombies/typings/plant/attack'
 interface Peas1Props extends Battlefield.PropsBase {}
 const plantName = '豌豆射手1'
-
+interface PlantAttackBase {
+  defenseValue: number
+  isAttack: boolean
+  hurtValue: number
+}
 function Peas1(props: Peas1Props): JSX.Element {
   const { positionStyle, battlefieldRef, clearPlant } = props
   type Skill = (...args: any) => React.ReactPortal
   const [skills, setSkills] = useState<Skill[]>([LaunchBullet])
   const [isAttack, setIsAttack] = useState(false)
   const [plantConfig] = useState(allPlantConfig.find(item => item.name === plantName))
-  const hurtValue = (plantConfig.content.content as Attack.Content).hurtValue
+  const plantAttackBase: PlantAttackBase = {
+    defenseValue: plantConfig.content.content.defenseValue,
+    isAttack: false,
+    hurtValue: (plantConfig.content.content as Attack.Content).hurtValue,
+  }
   const [, removePlantTag] = useAddRemoveActiveContent({
     ...positionStyle,
     type: ActiveTypes.Plant,
@@ -37,10 +45,10 @@ function Peas1(props: Peas1Props): JSX.Element {
 
   function LaunchBullet(props: { index: number }): React.ReactPortal {
     const { index } = props
-    const [skillTag, removeSkillTag, updateSkillPosition] = useAddRemoveActiveContent({
+    const [, removeSkillTag, updateSkillPosition] = useAddRemoveActiveContent({
       ...positionStyle,
       type: ActiveTypes.Skill,
-      content: { hurtValue },
+      content: { hurtValue: plantAttackBase.hurtValue },
       collideCallback: skillCollideCallback,
     })
 
@@ -91,9 +99,15 @@ function Peas1(props: Peas1Props): JSX.Element {
   }
 
   function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
-    if (collideType === CollideType.AttackRange && !isAttack) {
+    if (collideType === CollideType.AttackRange && !plantAttackBase.isAttack) {
+      console.log('不是吧？要打架了？')
+      plantAttackBase.isAttack = true
       setIsAttack(true)
-    } else if (collideType === CollideType.NotAttackRange && isAttack) {
+    } else if (collideType === CollideType.NotAttackRange && plantAttackBase.isAttack) {
+      plantAttackBase.isAttack = false
+      if (collideTarget && collideTarget.type === ActiveTypes.Zombie) {
+      }
+      console.log('有消息了，当前没碰撞噢')
       setIsAttack(false)
     }
   }

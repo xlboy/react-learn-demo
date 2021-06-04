@@ -5,6 +5,7 @@ export interface ZombieConfig {
   name: string
   image: string
   content: Zombie.Property
+  testName?: string
   Component: (props: Zombie.PropsBase) => JSX.Element
 }
 const allZombieConfig: ZombieConfig[] = [
