@@ -34,6 +34,7 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
     isCollide: false,
     isDeath: false,
   }
+
   const testName = `${~~(Math.random() * 99999)}`
   const [, removeZombieTag, updateActiveContentPosition] = useAddRemoveActiveContent({
     ...positionStyle,
@@ -50,6 +51,7 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
 
   function ZombieComponent(): React.ReactPortal {
     const moveSpeed = zombieConfig.content.content.moveSpeed
+
     const Component = () => {
       const zombieRef = useRef<HTMLDivElement>()
       useEffect(() => {
@@ -63,6 +65,10 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
             }, moveSpeed * 100)
           }
         })()
+
+        return function destroyZombieContent() {
+          Promise.resolve().then(() => removeZombieTag())
+        }
       }, [])
 
       return (

@@ -5,7 +5,7 @@ import { ActiveContent } from '../../typings/gameController'
 function useAddRemoveActiveContent(
   activeContent: ActiveContent
 ): [symbol, () => void, (left: string, top: string) => void] {
-  const activeContentTag = gameController.addActiveContent(activeContent)
+  const activeContentTag = gameController.addActiveContent(activeContent, activeContent.type)
 
   const removeActiveContent = () => {
     gameController.removeActiveContent(activeContentTag)
@@ -19,3 +19,4 @@ function useAddRemoveActiveContent(
 
 export default useAddRemoveActiveContent
 
+export type AddRemoveActiveContentType = ReturnType<typeof useAddRemoveActiveContent>

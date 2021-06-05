@@ -32,6 +32,7 @@ class GameController {
   }
 
   startPutZombie(): void {
+    (window as any).test = () => console.log('this', this)
     if (this.putZombieTimer === null) {
       const generateZombie = () => {
         const notUseSlot = this.zombieSlots.find(slot => slot.hasZombie === false)
@@ -47,6 +48,7 @@ class GameController {
         } else {
           throw new Error('notUseSlot undefined')
         }
+        // console.log(this)
       }
       generateZombie()
       this.putZombieTimer = setInterval(generateZombie, 3000)
@@ -67,14 +69,15 @@ class GameController {
       }
     })
     this.updateActiveTags()
-    console.log('this', this.activeTags)
   }
 
   addZombieSlot(slot: ZombieSlot): void {
     this.zombieSlots.push(slot)
   }
 
-  addActiveContent(activeContent: ActiveContent): symbol {
+  addActiveContent(activeContent: ActiveContent, activeType: ActiveTypes): symbol {
+    console.log(`添加了个${activeType}进来…`, this)
+    // debugger
     const tag = Symbol()
     this.activeContents[tag] = activeContent
     this.updateActiveTags()
@@ -87,7 +90,9 @@ class GameController {
   }
 
   updateActiveContentPosition(tag: symbol, position: Battlefield.PropsBase['positionStyle']): void {
-    Object.assign(this.activeContents[tag], { ...position })
+    if (this.activeContents[tag]) {
+      Object.assign(this.activeContents[tag], { ...position })
+    }
   }
 
   private detectContentCollide(): void {
@@ -105,6 +110,7 @@ class GameController {
           const zombieTag = zombieActives[i2]
           const zombieContent: ActiveContent = this.activeContents[zombieTag]
           // 若是在攻击范围内，则退出循环
+          // console.log('zombieContent', this)
           // debugger
           const isQuit = plantAttackRangeDetect(plantContent, zombieContent)
           if (isQuit) break stop
@@ -204,7 +210,7 @@ class GameController {
       self.activeContents
       zombieContent.content
       if (isCollide) {
-        debugger
+        // debugger
         skillContent.collideCallback(CollideType.XYAxleCollide, zombieContent)
         zombieContent.collideCallback(CollideType.XYAxleCollide, skillContent)
       }

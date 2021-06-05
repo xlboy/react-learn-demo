@@ -1,9 +1,11 @@
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Battlefield } from '@/pages/PlantVSZombies/typings/battlefield'
 import gameController from '@/pages/PlantVSZombies/core/gameController'
-import useAddRemoveActiveContent from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
-import allPlantConfig from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
+import useAddRemoveActiveContent, {
+  AddRemoveActiveContentType,
+} from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
+import allPlantConfig, { PlantConfig } from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
 import {
   ActiveContent,
   ActiveTypes,
@@ -20,21 +22,44 @@ interface PlantAttackBase {
 }
 function Peas1(props: Peas1Props): JSX.Element {
   const { positionStyle, battlefieldRef, clearPlant } = props
+
   type Skill = (...args: any) => React.ReactPortal
   const [skills, setSkills] = useState<Skill[]>([LaunchBullet])
   const [isAttack, setIsAttack] = useState(false)
-  const [plantConfig] = useState(allPlantConfig.find(item => item.name === plantName))
+
+  const plantConfig = useMemo<PlantConfig>(
+    () => allPlantConfig.find(item => item.name === plantName),
+    []
+  )
+
+  const [, removePlantTag] = useMemo<AddRemoveActiveContentType>(() => {
+    return useAddRemoveActiveContent({
+      ...positionStyle,
+      type: ActiveTypes.Plant,
+      content: plantConfig,
+      collideCallback: plantCollideCallback,
+    })
+
+    function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
+      if (collideType === CollideType.AttackRange && !plantAttackBase.isAttack) {
+        console.log('不是吧？要打架了？')
+        plantAttackBase.isAttack = true
+        setIsAttack(true)
+      } else if (collideType === CollideType.NotAttackRange && plantAttackBase.isAttack) {
+        plantAttackBase.isAttack = false
+        if (collideTarget && collideTarget.type === ActiveTypes.Zombie) {
+        }
+        console.log('有消息了，当前没碰撞噢')
+        setIsAttack(false)
+      }
+    }
+  }, [])
+
   const plantAttackBase: PlantAttackBase = {
     defenseValue: plantConfig.content.content.defenseValue,
     isAttack: false,
     hurtValue: (plantConfig.content.content as Attack.Content).hurtValue,
   }
-  const [, removePlantTag] = useAddRemoveActiveContent({
-    ...positionStyle,
-    type: ActiveTypes.Plant,
-    content: plantConfig,
-    collideCallback: plantCollideCallback,
-  })
 
   return (
     <>
@@ -44,40 +69,45 @@ function Peas1(props: Peas1Props): JSX.Element {
   )
 
   function LaunchBullet(props: { index: number }): React.ReactPortal {
-    const { index } = props
-    const [, removeSkillTag, updateSkillPosition] = useAddRemoveActiveContent({
-      ...positionStyle,
-      type: ActiveTypes.Skill,
-      content: { hurtValue: plantAttackBase.hurtValue },
-      collideCallback: skillCollideCallback,
-    })
+    const [, removeSkillTag, updateSkillPosition]: AddRemoveActiveContentType =
+      useAddRemoveActiveContent({
+        ...positionStyle,
+        type: ActiveTypes.Skill,
+        content: { hurtValue: plantAttackBase.hurtValue },
+        collideCallback: skillCollideCallback,
+      })
 
     return ReactDOM.createPortal(<Component />, battlefieldRef.current)
 
     function Component(): JSX.Element {
-      const style: CSSProperties = {
-        position: 'absolute',
-        left: `${parseInt(positionStyle.left) + 50}px`,
-        top: `${parseInt(positionStyle.top) + 20}px`,
-        zIndex: 3,
-      }
       const imgRef = useRef<HTMLImageElement>()
       let previousPosition: Battlefield.PropsBase['positionStyle'] = { ...positionStyle }
       useEffect(() => {
-        ;(function animloop() {
+        ;(function animationLoop() {
           if (imgRef.current !== null) {
             previousPosition.left = `${parseInt(previousPosition.left) + 15}px`
             imgRef.current.style.left = previousPosition.left
             updateSkillPosition(previousPosition.left, previousPosition.top)
             // 检测子弹是否超出地图了，若超出了则重新发射
             if (parseInt(previousPosition.left) > 1160) {
+              removeSkillTag()
               setSkills(state => [...state])
             }
-            requestAnimationFrame(animloop)
+            requestAnimationFrame(animationLoop)
           }
         })()
+        // 确保在组件销毁前能清除Skill在ActiveContent里的位置
+        return function destroySkillContent() {
+          Promise.resolve().then(() => removeSkillTag())
+        }
       }, [])
 
+      const style: CSSProperties = {
+        position: 'absolute',
+        left: `${parseInt(positionStyle.left) + 50}px`,
+        top: `${parseInt(positionStyle.top) + 20}px`,
+        zIndex: 3,
+      }
       return (
         <img
           ref={imgRef}
@@ -86,6 +116,7 @@ function Peas1(props: Peas1Props): JSX.Element {
         />
       )
     }
+
     function skillCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
       if (collideType === CollideType.XYAxleCollide) {
         switch (collideTarget.type) {
@@ -95,20 +126,6 @@ function Peas1(props: Peas1Props): JSX.Element {
             return
         }
       }
-    }
-  }
-
-  function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
-    if (collideType === CollideType.AttackRange && !plantAttackBase.isAttack) {
-      console.log('不是吧？要打架了？')
-      plantAttackBase.isAttack = true
-      setIsAttack(true)
-    } else if (collideType === CollideType.NotAttackRange && plantAttackBase.isAttack) {
-      plantAttackBase.isAttack = false
-      if (collideTarget && collideTarget.type === ActiveTypes.Zombie) {
-      }
-      console.log('有消息了，当前没碰撞噢')
-      setIsAttack(false)
     }
   }
 }
