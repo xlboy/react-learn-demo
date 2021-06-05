@@ -32,7 +32,7 @@ class GameController {
   }
 
   startPutZombie(): void {
-    (window as any).test = () => console.log('this', this)
+    ;(window as any).test = () => console.log(this)
     if (this.putZombieTimer === null) {
       const generateZombie = () => {
         const notUseSlot = this.zombieSlots.find(slot => slot.hasZombie === false)
@@ -42,16 +42,13 @@ class GameController {
             left: '1040px',
             top: `${110 * ~~(Math.random() * 5)}px`,
           }
-          // 埋个点…（此坑暂时解不出，我佛了）
-          // console.log('gameContentnot', startPosition, new Date().toLocaleString())
           notUseSlot.addZombie(zombie, startPosition)
         } else {
           throw new Error('notUseSlot undefined')
         }
-        // console.log(this)
       }
       generateZombie()
-      this.putZombieTimer = setInterval(generateZombie, 3000)
+      this.putZombieTimer = setInterval(generateZombie, 1500)
     }
   }
 
@@ -76,8 +73,6 @@ class GameController {
   }
 
   addActiveContent(activeContent: ActiveContent, activeType: ActiveTypes): symbol {
-    console.log(`添加了个${activeType}进来…`, this)
-    // debugger
     const tag = Symbol()
     this.activeContents[tag] = activeContent
     this.updateActiveTags()
@@ -96,7 +91,6 @@ class GameController {
   }
 
   private detectContentCollide(): void {
-    const self = this
     const plantActives = this.activeTags[ActiveTypes.Plant]
     const skillActives = this.activeTags[ActiveTypes.Skill]
     const zombieActives = this.activeTags[ActiveTypes.Zombie]
@@ -110,10 +104,8 @@ class GameController {
           const zombieTag = zombieActives[i2]
           const zombieContent: ActiveContent = this.activeContents[zombieTag]
           // 若是在攻击范围内，则退出循环
-          // console.log('zombieContent', this)
-          // debugger
           const isQuit = plantAttackRangeDetect(plantContent, zombieContent)
-          if (isQuit) break stop
+          if (isQuit) continue stop
         }
         plantContent.collideCallback(CollideType.NotAttackRange)
       }
@@ -139,7 +131,6 @@ class GameController {
       if (plantContent.type === ActiveTypes.Plant && zombieContent.type === ActiveTypes.Zombie) {
         const { content: srouceContent } = plantContent.content
         const isEqualLine = plantContent.top === zombieContent.top
-        zombieContent.content.testName
         if (srouceContent.type === Plant.Type.Attack) {
           const { attackDistance } = srouceContent.content
           // 判断植物源的攻击范围是否为水平之间的（同一行）
@@ -207,10 +198,7 @@ class GameController {
         _.pick(skillContent, ['left', 'top']),
         _.pick(zombieContent, ['left', 'top'])
       )
-      self.activeContents
-      zombieContent.content
       if (isCollide) {
-        // debugger
         skillContent.collideCallback(CollideType.XYAxleCollide, zombieContent)
         zombieContent.collideCallback(CollideType.XYAxleCollide, skillContent)
       }
@@ -232,6 +220,5 @@ class GameController {
 const gameController = new GameController()
 
 export default gameController
-
 
 type ccc = keyof [string]

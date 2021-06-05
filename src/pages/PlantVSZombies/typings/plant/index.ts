@@ -2,6 +2,9 @@ import { Battlefield } from '../battlefield'
 import { Attack } from './attack'
 import { Defensive } from './defensive'
 import { Reproduction } from './reproduction'
+
+type LookUp<O extends object, K extends string> = O extends { type: K } ? O : never
+
 export namespace Plant {
   export enum Type {
     /* 攻击类型  */
@@ -30,5 +33,6 @@ export namespace Plant {
           content: Reproduction.Content
         }
   }
-  export type Property = Content.Default
+  export type Property<T extends Type = Type> = LookUp<Content.Default, T>
+
 }

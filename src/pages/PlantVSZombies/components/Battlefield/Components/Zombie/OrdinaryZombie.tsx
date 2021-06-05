@@ -35,11 +35,10 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
     isDeath: false,
   }
 
-  const testName = `${~~(Math.random() * 99999)}`
   const [, removeZombieTag, updateActiveContentPosition] = useAddRemoveActiveContent({
     ...positionStyle,
     type: ActiveTypes.Zombie,
-    content: { ...zombieConfig, testName },
+    content: { ...zombieConfig },
     collideCallback: zombieCollideCallback,
   })
 
@@ -51,17 +50,19 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
 
   function ZombieComponent(): React.ReactPortal {
     const moveSpeed = zombieConfig.content.content.moveSpeed
-
+    const initHp = zombieConfig.content.content.defenseValue
     const Component = () => {
       const zombieRef = useRef<HTMLDivElement>()
+      const zombieHpRef = useRef<HTMLDivElement>()
       useEffect(() => {
-        ;(function animloop() {
+        ;(function animationLoop() {
           if (!isAttack && !zombieBase.isDeath && zombieRef.current) {
             previousPosition.left = `${parseInt(previousPosition.left) + -2}px`
             zombieRef.current.style.left = previousPosition.left
+            zombieHpRef.current.style.width = `${(zombieBase.defenseValue / initHp) * 100}%`
             updateActiveContentPosition(previousPosition.left, previousPosition.top)
             setTimeout(() => {
-              requestAnimationFrame(animloop)
+              requestAnimationFrame(animationLoop)
             }, moveSpeed * 100)
           }
         })()
@@ -73,8 +74,13 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
 
       return (
         <div ref={zombieRef} className='zombie-grid' style={positionStyle}>
-        {testName}
-          <img src={zombieConfig.image} />
+          <img
+            src={zombieConfig.image}
+            style={{ transform: `scale(${zombieConfig.zoomIndex || 1.2})` }}
+          />
+          <div className='zombie-hp'>
+            <div className='hp-fill' ref={zombieHpRef}></div>
+          </div>
         </div>
       )
     }

@@ -8,6 +8,7 @@ export namespace Zombie {
   export namespace Content {
     export interface Base {
       defenseValue: number
+      /**移动速度，1以下，越小越快 */
       moveSpeed: number
       hurtValue: number
     }

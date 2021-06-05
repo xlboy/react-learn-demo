@@ -68,7 +68,6 @@ function ZombieMain(props: ZombieMainProps): JSX.Element {
       zombieConfig,
       positionStyle: { ...startPosition },
     }
-    // 此坑我留着…MD
     return (
       <>
         {zombieConfig !== null && startPosition !== null && (

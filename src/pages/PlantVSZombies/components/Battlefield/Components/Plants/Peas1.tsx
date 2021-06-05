@@ -27,8 +27,8 @@ function Peas1(props: Peas1Props): JSX.Element {
   const [skills, setSkills] = useState<Skill[]>([LaunchBullet])
   const [isAttack, setIsAttack] = useState(false)
 
-  const plantConfig = useMemo<PlantConfig>(
-    () => allPlantConfig.find(item => item.name === plantName),
+  const plantConfig = useMemo<PlantConfig<Plant.Type.Attack>>(
+    () => allPlantConfig.find(item => item.name === plantName) as PlantConfig<Plant.Type.Attack>,
     []
   )
 
@@ -36,20 +36,19 @@ function Peas1(props: Peas1Props): JSX.Element {
     return useAddRemoveActiveContent({
       ...positionStyle,
       type: ActiveTypes.Plant,
-      content: plantConfig,
+      content: plantConfig as PlantConfig,
       collideCallback: plantCollideCallback,
     })
 
     function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
+      // 是否在攻击范围，并且当前不处于攻击状态
       if (collideType === CollideType.AttackRange && !plantAttackBase.isAttack) {
-        console.log('不是吧？要打架了？')
         plantAttackBase.isAttack = true
         setIsAttack(true)
       } else if (collideType === CollideType.NotAttackRange && plantAttackBase.isAttack) {
         plantAttackBase.isAttack = false
         if (collideTarget && collideTarget.type === ActiveTypes.Zombie) {
         }
-        console.log('有消息了，当前没碰撞噢')
         setIsAttack(false)
       }
     }
@@ -58,7 +57,7 @@ function Peas1(props: Peas1Props): JSX.Element {
   const plantAttackBase: PlantAttackBase = {
     defenseValue: plantConfig.content.content.defenseValue,
     isAttack: false,
-    hurtValue: (plantConfig.content.content as Attack.Content).hurtValue,
+    hurtValue: plantConfig.content.content.hurtValue,
   }
 
   return (

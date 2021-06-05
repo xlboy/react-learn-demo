@@ -3,13 +3,13 @@ import Sunflower from '../../components/Battlefield/Components/Plants/Sunflower'
 import { Battlefield } from '../../typings/battlefield'
 import { Plant } from '../../typings/plant'
 import { Attack } from '../../typings/plant/attack'
-export interface PlantConfig {
+export interface PlantConfig<T extends Plant.Type = Plant.Type> {
   name: string
   image: string
   sunNumber: number
   buyIntervalTime: number
   Component: Battlefield.GridProps['plant']['Component']
-  content: Plant.Property
+  content: Plant.Property<T>
 }
 const allPlantConfig: PlantConfig[] = [
   {
@@ -23,8 +23,8 @@ const allPlantConfig: PlantConfig[] = [
       content: {
         type: Attack.Type.Far,
         defenseValue: 100,
-        attackSpeed: 1,
-        hurtValue: 50,
+        attackSpeed: 2,
+        hurtValue: 20,
         attackDistance: {
           x: Attack.DistanceXAxisType.Front,
           y: Attack.DistanceYAxisType.CurrentLine,
