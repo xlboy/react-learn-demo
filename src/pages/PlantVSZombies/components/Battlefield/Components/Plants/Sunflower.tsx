@@ -1,27 +1,50 @@
-import React, { CSSProperties, Fragment, useEffect, useRef, useState } from 'react'
+import React, { CSSProperties, Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import ReactDOM from 'react-dom'
 import { Battlefield } from '@/pages/PlantVSZombies/typings/battlefield'
 import useStore from '@/pages/PlantVSZombies/core/store/useStore'
 import allPlantConfig, { PlantConfig } from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
 import { Reproduction } from '@/pages/PlantVSZombies/typings/plant/reproduction'
 import { message } from 'antd'
+import useAddRemoveActiveContent, {
+  AddRemoveActiveContentType,
+} from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
+import { ActiveContent, ActiveTypes, CollideType } from '@/pages/PlantVSZombies/typings/gameController'
+import { Plant } from '@/pages/PlantVSZombies/typings/plant'
 interface SunflowerState extends Battlefield.PropsBase {}
 
 const plantName = '向日葵'
 function Sunflower(props: SunflowerState): JSX.Element {
   const { positionStyle, battlefieldRef } = props
   const [isShowSun, setIsShowSun] = useState(false)
-  const [plantConfig] = useState(allPlantConfig.find(item => item.name === plantName))
+  const plantConfig = useMemo<PlantConfig<Plant.Type.Reproduction>>(
+    () =>
+      allPlantConfig.find(item => item.name === plantName) as PlantConfig<Plant.Type.Reproduction>,
+    []
+  )
   const sunInterval: number = (plantConfig.content.content as Reproduction.Content).interval * 1000
-  const delayShowSun = () => setTimeout(() => setIsShowSun(() => true), sunInterval)
+  const delayShowSun = () => {
+    setTimeout(() => setIsShowSun(() => true), sunInterval)
+  }
 
+  const [, removePlantTag] = useMemo<AddRemoveActiveContentType>(() => {
+    return useAddRemoveActiveContent({
+      ...positionStyle,
+      type: ActiveTypes.Plant,
+      content: plantConfig as PlantConfig,
+      collideCallback: plantCollideCallback,
+    })
+
+    function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
+      switch (collideType) {
+        case CollideType.XYAxleCollide:
+          // console.log('我草泥马，逼崽子，你妈的哟，我叼你吗的哟')
+      }
+    }
+  }, [])
+  
   useEffect(() => {
     delayShowSun()
   }, [])
-  if (plantConfig === undefined) {
-    message.error(`${plantName}配置有误`)
-    throw new Error(`${plantName}配置有误`)
-  }
 
   const store = useStore()
   return (
@@ -32,11 +55,6 @@ function Sunflower(props: SunflowerState): JSX.Element {
   )
 
   function SunDrop(): React.ReactPortal {
-    const [target, setTarget] = useState<HTMLDivElement>(null)
-
-    useEffect(() => {
-      setTarget(battlefieldRef.current)
-    }, [])
 
     const Component = () => {
       const style: CSSProperties = {
@@ -67,7 +85,7 @@ function Sunflower(props: SunflowerState): JSX.Element {
       }
     }
 
-    return target ? ReactDOM.createPortal(<Component />, target) : null
+    return ReactDOM.createPortal(<Component />, battlefieldRef.current)
   }
 }
 

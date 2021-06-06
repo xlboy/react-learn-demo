@@ -26,7 +26,6 @@ interface ZombieBase {
 }
 function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
   const { positionStyle, battlefieldRef, removeZombie, zombieConfig } = props
-  let isAttack = false
   let previousPosition: Zombie.PropsBase['positionStyle'] = { ...positionStyle }
   const zombieBase: ZombieBase = {
     defenseValue: zombieConfig.content.content.defenseValue,
@@ -56,9 +55,14 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
       const zombieHpRef = useRef<HTMLDivElement>()
       useEffect(() => {
         ;(function animationLoop() {
-          if (!isAttack && !zombieBase.isDeath && zombieRef.current) {
-            previousPosition.left = `${parseInt(previousPosition.left) + -2}px`
-            zombieRef.current.style.left = previousPosition.left
+          if (!zombieBase.isDeath && zombieRef.current) {
+            if (!zombieBase.isAttack) {
+              previousPosition.left = `${parseInt(previousPosition.left) + -2}px`
+              zombieRef.current.style.left = previousPosition.left
+              zombieRef.current.classList.remove('zombie-attack')
+            } else if (zombieRef.current.className.indexOf('zombie-attack') === -1) {
+              zombieRef.current.classList.add('zombie-attack')
+            }
             zombieHpRef.current.style.width = `${(zombieBase.defenseValue / initHp) * 100}%`
             updateActiveContentPosition(previousPosition.left, previousPosition.top)
             setTimeout(() => {
@@ -97,20 +101,21 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
         }, 100)
         switch (collideTarget.type) {
           case ActiveTypes.Skill:
-            skillZombieCollide(collideTarget.content.hurtValue)
-            break
+            zombieBase.defenseValue -= collideTarget.content.hurtValue
+            // 僵尸没血了，送走轮回
+            if (zombieBase.defenseValue <= 0) {
+              zombieBase.isDeath = true
+              removeZombieTag()
+              removeZombie()
+            }
+            return
+          case ActiveTypes.Plant:
+            zombieBase.isAttack = true
+            return
         }
       }
-    }
-
-    function skillZombieCollide(skillHurtValue: number): void {
-      zombieBase.defenseValue -= skillHurtValue
-      // 僵尸没血了，送走轮回
-      if (zombieBase.defenseValue <= 0) {
-        zombieBase.isDeath = true
-        removeZombieTag()
-        removeZombie()
-      }
+    } else if (collideType === CollideType.NotXYAxleCollide) {
+      zombieBase.isAttack = false
     }
   }
 }

@@ -9,7 +9,12 @@ export enum CollideType {
   NotAttackRange = 'NotAttackRange',
   /**ＸＹ轴碰撞 */
   XYAxleCollide = 'XYAxleCollide',
+  /**无ＸＹ轴碰撞 */
+  NotXYAxleCollide = 'NotXYAxleCollide',
+  /** */
 }
+
+
 export enum ActiveTypes {
   Plant = 'Plant',
   Zombie = 'Zombie',
@@ -28,12 +33,14 @@ type ActiveTarget =
       type: ActiveTypes.Skill
       content: {
         hurtValue: number
+        tag?: symbol
       }
     }
 export type ActiveContent = {
   left: string
   top: string
-  collideCallback(collideType: CollideType, collideTarget?: ActiveContent): void
+  /**碰撞类型、碰撞的目标（敌方）、碰撞源（自身） */
+  collideCallback(collideType: CollideType, collideTarget?: ActiveContent, collideSource?: ActiveContent): void
 } & ActiveTarget
 
 export interface ZombieSlot {

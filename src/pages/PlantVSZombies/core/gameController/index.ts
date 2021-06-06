@@ -48,7 +48,7 @@ class GameController {
         }
       }
       generateZombie()
-      this.putZombieTimer = setInterval(generateZombie, 1500)
+      // this.putZombieTimer = setInterval(generateZombie, 1500)
     }
   }
 
@@ -103,6 +103,7 @@ class GameController {
         for (let i2 = 0; i2 < zombieActives.length; i2++) {
           const zombieTag = zombieActives[i2]
           const zombieContent: ActiveContent = this.activeContents[zombieTag]
+          plantZombieCollide(plantContent, zombieContent)
           // 若是在攻击范围内，则退出循环
           const isQuit = plantAttackRangeDetect(plantContent, zombieContent)
           if (isQuit) continue stop
@@ -172,8 +173,8 @@ class GameController {
             })()
 
             if (isXYAxisAttackRange) {
-              plantContent.collideCallback(CollideType.AttackRange, zombieContent)
-              zombieContent.collideCallback(CollideType.AttackRange, plantContent)
+              plantContent.collideCallback(CollideType.AttackRange, zombieContent, plantContent)
+              zombieContent.collideCallback(CollideType.AttackRange, plantContent, zombieContent)
               return true
             } else {
               // 此处会有BUG，留至入口处调
@@ -181,10 +182,24 @@ class GameController {
             }
           }
         } else if (srouceContent.type === Plant.Type.Reproduction) {
-          plantContent.collideCallback(CollideType.AttackRange, zombieContent)
-          zombieContent.collideCallback(CollideType.AttackRange, plantContent)
+          plantContent.collideCallback(CollideType.AttackRange, zombieContent, plantContent)
+          zombieContent.collideCallback(CollideType.AttackRange, plantContent, zombieContent)
         } else if (srouceContent.type === Plant.Type.Defensive) {
         }
+      }
+    }
+    /**植物与僵尸碰巧 */
+    function plantZombieCollide(plantContent: ActiveContent, zombieContent: ActiveContent): void {
+      const isCollide = isElementCollide(
+        _.pick(plantContent, ['left', 'top']),
+        _.pick(zombieContent, ['left', 'top'])
+      )
+      if (isCollide) {
+        plantContent.collideCallback(CollideType.XYAxleCollide, zombieContent, plantContent)
+        zombieContent.collideCallback(CollideType.XYAxleCollide, plantContent, zombieContent)
+      } else {
+        plantContent.collideCallback(CollideType.NotXYAxleCollide)
+        zombieContent.collideCallback(CollideType.NotXYAxleCollide)
       }
     }
 
@@ -199,8 +214,8 @@ class GameController {
         _.pick(zombieContent, ['left', 'top'])
       )
       if (isCollide) {
-        skillContent.collideCallback(CollideType.XYAxleCollide, zombieContent)
-        zombieContent.collideCallback(CollideType.XYAxleCollide, skillContent)
+        skillContent.collideCallback(CollideType.XYAxleCollide, zombieContent, skillContent)
+        zombieContent.collideCallback(CollideType.XYAxleCollide, skillContent, zombieContent)
       }
     }
   }
@@ -214,6 +229,15 @@ class GameController {
       const activeContent: ActiveContent = this.activeContents[tag]
       this.activeTags[activeContent.type].push(tag as symbol)
     })
+    // 过滤一下植物的顺序，碰撞检测那用到
+    this.activeTags[ActiveTypes.Plant].sort((aTag, bTag) => {
+      const aContent: ActiveContent = this.activeContents[aTag]
+      const bContent: ActiveContent = this.activeContents[bTag]
+      return parseInt(aContent.left) - parseInt(bContent.left)
+    })
+    // this.activeTags[ActiveTypes.Plant].forEach(tag => {
+    //   console.log(this.activeContents[tag])
+    // })
   }
 }
 
@@ -221,4 +245,10 @@ const gameController = new GameController()
 
 export default gameController
 
-type ccc = keyof [string]
+type First<T extends any[] | object> = T extends any[]
+  ? T extends { foo: any }
+    ? T[number | 'foo']
+    : T[number]
+  : T extends { foo: any }
+  ? T['foo']
+  : never

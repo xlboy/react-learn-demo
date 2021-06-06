@@ -12,14 +12,18 @@ import {
   CollideType,
 } from '@/pages/PlantVSZombies/typings/gameController'
 import { Plant } from '@/pages/PlantVSZombies/typings/plant'
-import { Attack } from '@/pages/PlantVSZombies/typings/plant/attack'
+import { observer, useLocalStore, useObserver } from 'mobx-react'
+
 interface Peas1Props extends Battlefield.PropsBase {}
 const plantName = '豌豆射手1'
 interface PlantAttackBase {
   defenseValue: number
   isAttack: boolean
   hurtValue: number
+  /**上一次攻击的时间 */
+  attackTime: number | null
 }
+
 function Peas1(props: Peas1Props): JSX.Element {
   const { positionStyle, battlefieldRef, clearPlant } = props
 
@@ -41,15 +45,22 @@ function Peas1(props: Peas1Props): JSX.Element {
     })
 
     function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
-      // 是否在攻击范围，并且当前不处于攻击状态
-      if (collideType === CollideType.AttackRange && !plantAttackBase.isAttack) {
-        plantAttackBase.isAttack = true
-        setIsAttack(true)
-      } else if (collideType === CollideType.NotAttackRange && plantAttackBase.isAttack) {
-        plantAttackBase.isAttack = false
-        if (collideTarget && collideTarget.type === ActiveTypes.Zombie) {
-        }
-        setIsAttack(false)
+      switch (collideType) {
+        case CollideType.AttackRange:
+          // 是否在攻击范围，并且当前不处于攻击状态
+          if (!plantAttackBase.isAttack) {
+            plantAttackBase.isAttack = true
+            setIsAttack(true)
+          }
+          return
+        case CollideType.NotAttackRange:
+          if (plantAttackBase.isAttack) {
+            plantAttackBase.isAttack = false
+            setIsAttack(false)
+          }
+          return
+        case CollideType.XYAxleCollide:
+          console.log('我草泥马，逼崽子，你妈的哟，我叼你吗的哟')
       }
     }
   }, [])
@@ -58,6 +69,7 @@ function Peas1(props: Peas1Props): JSX.Element {
     defenseValue: plantConfig.content.content.defenseValue,
     isAttack: false,
     hurtValue: plantConfig.content.content.hurtValue,
+    attackTime: null,
   }
 
   return (
@@ -67,7 +79,9 @@ function Peas1(props: Peas1Props): JSX.Element {
     </>
   )
 
-  function LaunchBullet(props: { index: number }): React.ReactPortal {
+  function LaunchBullet(): React.ReactPortal {
+    plantAttackBase.attackTime = +new Date()
+    const attackSpeed = plantConfig.content.content.attackSpeed * 1000
     const [, removeSkillTag, updateSkillPosition]: AddRemoveActiveContentType =
       useAddRemoveActiveContent({
         ...positionStyle,
@@ -75,22 +89,24 @@ function Peas1(props: Peas1Props): JSX.Element {
         content: { hurtValue: plantAttackBase.hurtValue },
         collideCallback: skillCollideCallback,
       })
-
     return ReactDOM.createPortal(<Component />, battlefieldRef.current)
 
     function Component(): JSX.Element {
       const imgRef = useRef<HTMLImageElement>()
-      let previousPosition: Battlefield.PropsBase['positionStyle'] = { ...positionStyle }
+      const positionLT = {
+        left: `${parseInt(positionStyle.left) + 20}px`,
+        top: `${parseInt(positionStyle.top) + 20}px`,
+      }
       useEffect(() => {
         ;(function animationLoop() {
           if (imgRef.current !== null) {
-            previousPosition.left = `${parseInt(previousPosition.left) + 15}px`
-            imgRef.current.style.left = previousPosition.left
-            updateSkillPosition(previousPosition.left, previousPosition.top)
+            positionLT.left = `${parseInt(positionLT.left) + 15}px`
+            imgRef.current.style.left = positionLT.left
+            updateSkillPosition(positionLT.left, positionLT.top)
             // 检测子弹是否超出地图了，若超出了则重新发射
-            if (parseInt(previousPosition.left) > 1160) {
+            if (parseInt(positionLT.left) > 1160) {
               removeSkillTag()
-              setSkills(state => [...state])
+              againAttack()
             }
             requestAnimationFrame(animationLoop)
           }
@@ -103,9 +119,8 @@ function Peas1(props: Peas1Props): JSX.Element {
 
       const style: CSSProperties = {
         position: 'absolute',
-        left: `${parseInt(positionStyle.left) + 50}px`,
-        top: `${parseInt(positionStyle.top) + 20}px`,
         zIndex: 3,
+        ...positionLT,
       }
       return (
         <img
@@ -116,13 +131,34 @@ function Peas1(props: Peas1Props): JSX.Element {
       )
     }
 
-    function skillCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
-      if (collideType === CollideType.XYAxleCollide) {
-        switch (collideTarget.type) {
-          case ActiveTypes.Zombie:
-            removeSkillTag()
-            setSkills(state => [...state])
-            return
+    function againAttack(): void {
+      const attackInterval = +new Date() - plantAttackBase.attackTime
+      if (attackInterval > attackSpeed) {
+        setSkills(state => [])
+        setTimeout(() => {
+          setSkills(state => [...state])
+        })
+      } else {
+        setSkills(state => [])
+        setTimeout(() => {
+          setSkills(state => [LaunchBullet])
+        }, attackSpeed - attackInterval)
+      }
+    }
+
+    function skillCollideCallback(
+      collideType: CollideType,
+      collideTarget: ActiveContent,
+      collideSrouce: ActiveContent
+    ): void {
+      if (collideSrouce.type === ActiveTypes.Skill) {
+        if (collideType === CollideType.XYAxleCollide) {
+          switch (collideTarget.type) {
+            case ActiveTypes.Zombie:
+              removeSkillTag()
+              againAttack()
+              return
+          }
         }
       }
     }

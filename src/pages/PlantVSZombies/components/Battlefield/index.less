@@ -53,5 +53,16 @@
         background-color: red;
       }
     }
+    &.zombie-attack {
+      animation: ZombieRotat 1s linear 0s infinite;
+      @keyframes ZombieRotat {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(-360deg);
+        }
+      }
+    }
   }
 }
