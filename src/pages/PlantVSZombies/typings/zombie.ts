@@ -11,6 +11,7 @@ export namespace Zombie {
       /**移动速度，1以下，越小越快 */
       moveSpeed: number
       hurtValue: number
+      attackSpeed: number
     }
     interface Ordinary extends Base {}
     export type Default = {

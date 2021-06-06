@@ -8,28 +8,44 @@ import { message } from 'antd'
 import useAddRemoveActiveContent, {
   AddRemoveActiveContentType,
 } from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
-import { ActiveContent, ActiveTypes, CollideType } from '@/pages/PlantVSZombies/typings/gameController'
+import {
+  ActiveContent,
+  ActiveType,
+  CollideType,
+} from '@/pages/PlantVSZombies/typings/gameController'
 import { Plant } from '@/pages/PlantVSZombies/typings/plant'
 interface SunflowerState extends Battlefield.PropsBase {}
+interface PlantBase {
+  /**阳光生产的时间间隔 */
+  sunInterval: number
+}
 
 const plantName = '向日葵'
 function Sunflower(props: SunflowerState): JSX.Element {
-  const { positionStyle, battlefieldRef } = props
+  const { positionStyle, battlefieldRef, plantHpRef } = props
   const [isShowSun, setIsShowSun] = useState(false)
   const plantConfig = useMemo<PlantConfig<Plant.Type.Reproduction>>(
     () =>
       allPlantConfig.find(item => item.name === plantName) as PlantConfig<Plant.Type.Reproduction>,
     []
   )
-  const sunInterval: number = (plantConfig.content.content as Reproduction.Content).interval * 1000
+
+  const plantBase: PlantBase = (() => {
+    const { interval, defenseValue } = plantConfig.content.content
+    return {
+      defenseValue,
+      sunInterval: interval * 1000,
+    }
+  })()
+
   const delayShowSun = () => {
-    setTimeout(() => setIsShowSun(() => true), sunInterval)
+    setTimeout(() => setIsShowSun(() => true), plantBase.sunInterval)
   }
 
   const [, removePlantTag] = useMemo<AddRemoveActiveContentType>(() => {
     return useAddRemoveActiveContent({
       ...positionStyle,
-      type: ActiveTypes.Plant,
+      type: ActiveType.Plant,
       content: plantConfig as PlantConfig,
       collideCallback: plantCollideCallback,
     })
@@ -37,11 +53,11 @@ function Sunflower(props: SunflowerState): JSX.Element {
     function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
       switch (collideType) {
         case CollideType.XYAxleCollide:
-          // console.log('我草泥马，逼崽子，你妈的哟，我叼你吗的哟')
+        // console.log('我草泥马，逼崽子，你妈的哟，我叼你吗的哟')
       }
     }
   }, [])
-  
+
   useEffect(() => {
     delayShowSun()
   }, [])
@@ -55,7 +71,6 @@ function Sunflower(props: SunflowerState): JSX.Element {
   )
 
   function SunDrop(): React.ReactPortal {
-
     const Component = () => {
       const style: CSSProperties = {
         position: 'absolute',

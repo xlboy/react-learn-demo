@@ -17,6 +17,9 @@ export namespace Battlefield {
   export interface PropsBase {
     positionStyle: Battlefield.positionStyle
     battlefieldRef: React.MutableRefObject<HTMLDivElement>
-    clearPlant(plantTag: Symbol): void
+    removePlant(): void
+    plantHpRef: React.RefObject<{
+      updateHp(width: string): void
+    }>
   }
 }

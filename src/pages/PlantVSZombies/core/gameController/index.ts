@@ -4,7 +4,7 @@
 
 import { Plant } from '../../typings/plant'
 import { Attack } from '../../typings/plant/attack'
-import { ActiveContent, ActiveTypes, CollideType, ZombieSlot } from '../../typings/gameController'
+import { ActiveContent, ActiveType, CollideType, ZombieSlot } from '../../typings/gameController'
 import allZombieConfig from '../configs/allZombieConfig'
 import { Zombie } from '../../typings/zombie'
 import { Battlefield } from '../../typings/battlefield'
@@ -13,10 +13,10 @@ import * as _ from 'lodash'
 class GameController {
   /* 装载记录当前活跃的内容(植物、打出的技能、僵尸) */
   private activeContents: Record<symbol, ActiveContent> = {}
-  private activeTags: Record<ActiveTypes, symbol[]> = {
-    [ActiveTypes.Plant]: [],
-    [ActiveTypes.Skill]: [],
-    [ActiveTypes.Zombie]: [],
+  private activeTags: Record<ActiveType, symbol[]> = {
+    [ActiveType.Plant]: [],
+    [ActiveType.Skill]: [],
+    [ActiveType.Zombie]: [],
   }
   private zombieSlots: ZombieSlot[] = []
   private putZombieTimer: NodeJS.Timeout | null = null
@@ -48,7 +48,7 @@ class GameController {
         }
       }
       generateZombie()
-      // this.putZombieTimer = setInterval(generateZombie, 1500)
+      this.putZombieTimer = setInterval(generateZombie, 1500)
     }
   }
 
@@ -61,7 +61,7 @@ class GameController {
     })
     Reflect.ownKeys(this.activeContents).forEach(tag => {
       const activeContent: ActiveContent = this.activeContents[tag]
-      if (activeContent.type === ActiveTypes.Zombie) {
+      if (activeContent.type === ActiveType.Zombie) {
         delete this.activeContents[tag]
       }
     })
@@ -72,7 +72,7 @@ class GameController {
     this.zombieSlots.push(slot)
   }
 
-  addActiveContent(activeContent: ActiveContent, activeType: ActiveTypes): symbol {
+  addActiveContent(activeContent: ActiveContent, activeType: ActiveType): symbol {
     const tag = Symbol()
     this.activeContents[tag] = activeContent
     this.updateActiveTags()
@@ -91,10 +91,10 @@ class GameController {
   }
 
   private detectContentCollide(): void {
-    const plantActives = this.activeTags[ActiveTypes.Plant]
-    const skillActives = this.activeTags[ActiveTypes.Skill]
-    const zombieActives = this.activeTags[ActiveTypes.Zombie]
-    stop: for (let i = 0; i < plantActives.length; i++) {
+    const plantActives = this.activeTags[ActiveType.Plant]
+    const skillActives = this.activeTags[ActiveType.Skill]
+    const zombieActives = this.activeTags[ActiveType.Zombie]
+    plantLoop: for (let i = 0; i < plantActives.length; i++) {
       const plantTag = plantActives[i]
       const plantContent: ActiveContent = this.activeContents[plantTag]
       if (zombieActives.length === 0) {
@@ -106,10 +106,22 @@ class GameController {
           plantZombieCollide(plantContent, zombieContent)
           // 若是在攻击范围内，则退出循环
           const isQuit = plantAttackRangeDetect(plantContent, zombieContent)
-          if (isQuit) continue stop
+          if (isQuit) continue plantLoop
         }
         plantContent.collideCallback(CollideType.NotAttackRange)
       }
+    }
+    zombieLoop: for (let i = 0; i < zombieActives.length; i++) {
+      const zombieTag = zombieActives[i]
+      const zombieContent: ActiveContent = this.activeContents[zombieTag]
+      for (let i2 = plantActives.length; i2 > 0; i2--) {
+        const plantTag = plantActives[i2 - 1]
+        const plantContent: ActiveContent = this.activeContents[plantTag]
+        // 遇到了植物，则通知开转。并跳出此次大循环（僵尸级）
+        const isQuit = zombiePlantCollide(zombieContent, plantContent)
+        if (isQuit) continue zombieLoop
+      }
+      zombieContent.collideCallback(CollideType.NotXYAxleCollide)
     }
 
     skillActives.forEach(skillTag => {
@@ -129,7 +141,7 @@ class GameController {
       plantContent: ActiveContent,
       zombieContent: ActiveContent
     ): true | undefined {
-      if (plantContent.type === ActiveTypes.Plant && zombieContent.type === ActiveTypes.Zombie) {
+      if (plantContent.type === ActiveType.Plant && zombieContent.type === ActiveType.Zombie) {
         const { content: srouceContent } = plantContent.content
         const isEqualLine = plantContent.top === zombieContent.top
         if (srouceContent.type === Plant.Type.Attack) {
@@ -196,16 +208,28 @@ class GameController {
       )
       if (isCollide) {
         plantContent.collideCallback(CollideType.XYAxleCollide, zombieContent, plantContent)
-        zombieContent.collideCallback(CollideType.XYAxleCollide, plantContent, zombieContent)
       } else {
         plantContent.collideCallback(CollideType.NotXYAxleCollide)
-        zombieContent.collideCallback(CollideType.NotXYAxleCollide)
+      }
+    }
+    /**僵尸与植物碰巧 */
+    function zombiePlantCollide(
+      zombieContent: ActiveContent,
+      plantContent: ActiveContent
+    ): true | undefined {
+      const isCollide = isElementCollide(
+        _.pick(zombieContent, ['left', 'top']),
+        _.pick(plantContent, ['left', 'top'])
+      )
+      if (isCollide) {
+        zombieContent.collideCallback(CollideType.XYAxleCollide, plantContent, zombieContent)
+        return true
       }
     }
 
     /**植物与打出的技能碰巧，例如（豌豆射手射出的豆与火树相撞后，豆变成了火红色，伤害力加高） */
     function plantSkillCollide(plantContent: ActiveContent, skillContent: ActiveContent): void {
-      if (plantContent.type === ActiveTypes.Plant && skillContent.type === ActiveTypes.Skill) {
+      if (plantContent.type === ActiveType.Plant && skillContent.type === ActiveType.Skill) {
       }
     }
     function skillZombieCollide(skillContent: ActiveContent, zombieContent: ActiveContent): void {
@@ -221,21 +245,21 @@ class GameController {
   }
 
   private updateActiveTags(): void {
-    this.activeTags[ActiveTypes.Plant] = []
-    this.activeTags[ActiveTypes.Skill] = []
-    this.activeTags[ActiveTypes.Zombie] = []
+    this.activeTags[ActiveType.Plant] = []
+    this.activeTags[ActiveType.Skill] = []
+    this.activeTags[ActiveType.Zombie] = []
 
     Reflect.ownKeys(this.activeContents).forEach(tag => {
       const activeContent: ActiveContent = this.activeContents[tag]
       this.activeTags[activeContent.type].push(tag as symbol)
     })
     // 过滤一下植物的顺序，碰撞检测那用到
-    this.activeTags[ActiveTypes.Plant].sort((aTag, bTag) => {
+    this.activeTags[ActiveType.Plant].sort((aTag, bTag) => {
       const aContent: ActiveContent = this.activeContents[aTag]
       const bContent: ActiveContent = this.activeContents[bTag]
       return parseInt(aContent.left) - parseInt(bContent.left)
     })
-    // this.activeTags[ActiveTypes.Plant].forEach(tag => {
+    // this.activeTags[ActiveType.Plant].forEach(tag => {
     //   console.log(this.activeContents[tag])
     // })
   }
@@ -244,11 +268,3 @@ class GameController {
 const gameController = new GameController()
 
 export default gameController
-
-type First<T extends any[] | object> = T extends any[]
-  ? T extends { foo: any }
-    ? T[number | 'foo']
-    : T[number]
-  : T extends { foo: any }
-  ? T['foo']
-  : never

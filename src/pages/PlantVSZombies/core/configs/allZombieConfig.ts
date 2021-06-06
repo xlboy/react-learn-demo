@@ -6,7 +6,6 @@ export interface ZombieConfig {
   image: string
   content: Zombie.Property
   zoomIndex?: number
-  testName?: string
   Component: (props: Zombie.PropsBase) => JSX.Element
 }
 const allZombieConfig: ZombieConfig[] = [
@@ -19,6 +18,7 @@ const allZombieConfig: ZombieConfig[] = [
         hurtValue: 20,
         defenseValue: 100,
         moveSpeed: 1,
+        attackSpeed: 1
       },
     },
     Component: OrdinaryZombie,
@@ -32,6 +32,7 @@ const allZombieConfig: ZombieConfig[] = [
         hurtValue: 30,
         defenseValue: 140,
         moveSpeed: 0.9,
+        attackSpeed: 1
       },
     },
     Component: OrdinaryZombie,
@@ -45,6 +46,7 @@ const allZombieConfig: ZombieConfig[] = [
         hurtValue: 30,
         defenseValue: 160,
         moveSpeed: 0.9,
+        attackSpeed: 1
       },
     },
     Component: OrdinaryZombie,
@@ -59,6 +61,7 @@ const allZombieConfig: ZombieConfig[] = [
         hurtValue: 50,
         defenseValue: 200,
         moveSpeed: 0.3,
+        attackSpeed: 1
       },
     },
     Component: OrdinaryZombie,

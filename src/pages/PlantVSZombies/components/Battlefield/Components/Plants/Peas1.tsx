@@ -8,15 +8,16 @@ import useAddRemoveActiveContent, {
 import allPlantConfig, { PlantConfig } from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
 import {
   ActiveContent,
-  ActiveTypes,
+  ActiveType,
   CollideType,
+  SwapType,
 } from '@/pages/PlantVSZombies/typings/gameController'
 import { Plant } from '@/pages/PlantVSZombies/typings/plant'
 import { observer, useLocalStore, useObserver } from 'mobx-react'
 
 interface Peas1Props extends Battlefield.PropsBase {}
 const plantName = '豌豆射手1'
-interface PlantAttackBase {
+interface PlantBase {
   defenseValue: number
   isAttack: boolean
   hurtValue: number
@@ -25,7 +26,7 @@ interface PlantAttackBase {
 }
 
 function Peas1(props: Peas1Props): JSX.Element {
-  const { positionStyle, battlefieldRef, clearPlant } = props
+  const { positionStyle, battlefieldRef, removePlant, plantHpRef } = props
 
   type Skill = (...args: any) => React.ReactPortal
   const [skills, setSkills] = useState<Skill[]>([LaunchBullet])
@@ -39,33 +40,14 @@ function Peas1(props: Peas1Props): JSX.Element {
   const [, removePlantTag] = useMemo<AddRemoveActiveContentType>(() => {
     return useAddRemoveActiveContent({
       ...positionStyle,
-      type: ActiveTypes.Plant,
+      type: ActiveType.Plant,
       content: plantConfig as PlantConfig,
       collideCallback: plantCollideCallback,
+      swapCallback: plantSwapCallback,
     })
-
-    function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
-      switch (collideType) {
-        case CollideType.AttackRange:
-          // 是否在攻击范围，并且当前不处于攻击状态
-          if (!plantAttackBase.isAttack) {
-            plantAttackBase.isAttack = true
-            setIsAttack(true)
-          }
-          return
-        case CollideType.NotAttackRange:
-          if (plantAttackBase.isAttack) {
-            plantAttackBase.isAttack = false
-            setIsAttack(false)
-          }
-          return
-        case CollideType.XYAxleCollide:
-          console.log('我草泥马，逼崽子，你妈的哟，我叼你吗的哟')
-      }
-    }
   }, [])
 
-  const plantAttackBase: PlantAttackBase = {
+  const plantBase: PlantBase = {
     defenseValue: plantConfig.content.content.defenseValue,
     isAttack: false,
     hurtValue: plantConfig.content.content.hurtValue,
@@ -80,13 +62,13 @@ function Peas1(props: Peas1Props): JSX.Element {
   )
 
   function LaunchBullet(): React.ReactPortal {
-    plantAttackBase.attackTime = +new Date()
+    plantBase.attackTime = +new Date()
     const attackSpeed = plantConfig.content.content.attackSpeed * 1000
     const [, removeSkillTag, updateSkillPosition]: AddRemoveActiveContentType =
       useAddRemoveActiveContent({
         ...positionStyle,
-        type: ActiveTypes.Skill,
-        content: { hurtValue: plantAttackBase.hurtValue },
+        type: ActiveType.Skill,
+        content: { hurtValue: plantBase.hurtValue },
         collideCallback: skillCollideCallback,
       })
     return ReactDOM.createPortal(<Component />, battlefieldRef.current)
@@ -132,7 +114,7 @@ function Peas1(props: Peas1Props): JSX.Element {
     }
 
     function againAttack(): void {
-      const attackInterval = +new Date() - plantAttackBase.attackTime
+      const attackInterval = +new Date() - plantBase.attackTime
       if (attackInterval > attackSpeed) {
         setSkills(state => [])
         setTimeout(() => {
@@ -151,16 +133,53 @@ function Peas1(props: Peas1Props): JSX.Element {
       collideTarget: ActiveContent,
       collideSrouce: ActiveContent
     ): void {
-      if (collideSrouce.type === ActiveTypes.Skill) {
+      if (collideSrouce.type === ActiveType.Skill) {
         if (collideType === CollideType.XYAxleCollide) {
           switch (collideTarget.type) {
-            case ActiveTypes.Zombie:
+            case ActiveType.Zombie:
               removeSkillTag()
               againAttack()
               return
           }
         }
       }
+    }
+  }
+
+  function plantCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
+    switch (collideType) {
+      case CollideType.AttackRange:
+        // 是否在攻击范围，并且当前不处于攻击状态
+        if (!plantBase.isAttack) {
+          plantBase.isAttack = true
+          setIsAttack(true)
+        }
+        return
+      case CollideType.NotAttackRange:
+        if (plantBase.isAttack) {
+          plantBase.isAttack = false
+          setIsAttack(false)
+        }
+        return
+      case CollideType.XYAxleCollide:
+        console.log('我草泥马，逼崽子，你妈的哟，我叼你吗的哟')
+    }
+  }
+
+  function plantSwapCallback(swapType: SwapType, swapTarget: ActiveContent): void {
+    switch (swapType) {
+      case SwapType.NowAttack:
+        if (swapTarget.type === ActiveType.Zombie) {
+          const initHp = plantConfig.content.content.defenseValue
+          const { hurtValue } = swapTarget.content.content.content
+          plantBase.defenseValue -= hurtValue
+          plantHpRef.current.updateHp(`${(plantBase.defenseValue / initHp) * 100}%`)
+          if (plantBase.defenseValue <= 0) {
+            removePlantTag()
+            removePlant()
+          }
+        }
+        return
     }
   }
 }

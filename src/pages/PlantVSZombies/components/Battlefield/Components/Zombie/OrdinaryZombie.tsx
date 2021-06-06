@@ -2,8 +2,10 @@ import gameController from '@/pages/PlantVSZombies/core/gameController'
 import useAddRemoveActiveContent from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
 import {
   ActiveContent,
-  ActiveTypes,
+  ActiveTarget,
+  ActiveType,
   CollideType,
+  SwapType,
 } from '@/pages/PlantVSZombies/typings/gameController'
 import { Zombie } from '@/pages/PlantVSZombies/typings/zombie'
 import React, {
@@ -23,6 +25,7 @@ interface ZombieBase {
   /* 在碰撞后，可能还会在碰撞元素内部进行移动，而移动的途中会不停的触发回调，用此数据来判断回调 */
   isCollide: boolean
   isDeath: boolean
+  attackTimer: NodeJS.Timeout | null
 }
 function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
   const { positionStyle, battlefieldRef, removeZombie, zombieConfig } = props
@@ -32,13 +35,15 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
     isAttack: false,
     isCollide: false,
     isDeath: false,
+    attackTimer: null,
   }
 
   const [, removeZombieTag, updateActiveContentPosition] = useAddRemoveActiveContent({
     ...positionStyle,
-    type: ActiveTypes.Zombie,
+    type: ActiveType.Zombie,
     content: { ...zombieConfig },
     collideCallback: zombieCollideCallback,
+    swapCallback: zombieSwapCallback,
   })
 
   return (
@@ -48,8 +53,7 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
   )
 
   function ZombieComponent(): React.ReactPortal {
-    const moveSpeed = zombieConfig.content.content.moveSpeed
-    const initHp = zombieConfig.content.content.defenseValue
+    const { moveSpeed, defenseValue: initHp } = zombieConfig.content.content
     const Component = () => {
       const zombieRef = useRef<HTMLDivElement>()
       const zombieHpRef = useRef<HTMLDivElement>()
@@ -92,7 +96,11 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
     return ReactDOM.createPortal(<Component />, battlefieldRef.current)
   }
 
-  function zombieCollideCallback(collideType: CollideType, collideTarget: ActiveContent) {
+  function zombieCollideCallback(
+    collideType: CollideType,
+    collideTarget: ActiveContent,
+    collideSrouce: ActiveContent
+  ): void {
     if (collideType === CollideType.XYAxleCollide) {
       if (!zombieBase.isCollide) {
         zombieBase.isCollide = true
@@ -100,7 +108,7 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
           zombieBase.isCollide = false
         }, 100)
         switch (collideTarget.type) {
-          case ActiveTypes.Skill:
+          case ActiveType.Skill:
             zombieBase.defenseValue -= collideTarget.content.hurtValue
             // 僵尸没血了，送走轮回
             if (zombieBase.defenseValue <= 0) {
@@ -109,8 +117,13 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
               removeZombie()
             }
             return
-          case ActiveTypes.Plant:
+          case ActiveType.Plant:
+            const { attackSpeed } = zombieConfig.content.content
             zombieBase.isAttack = true
+            zombieBase.attackTimer = setInterval(() => {
+              // 定时，打植物，打残它
+              collideTarget.swapCallback(SwapType.NowAttack, collideSrouce)
+            }, attackSpeed * 1000)
             return
         }
       }
@@ -118,6 +131,8 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
       zombieBase.isAttack = false
     }
   }
+
+  function zombieSwapCallback(swapType: SwapType, swapTarget: ActiveContent): void {}
 }
 
 export default OrdinaryZombie

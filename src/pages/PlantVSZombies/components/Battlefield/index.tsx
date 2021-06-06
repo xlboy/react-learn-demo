@@ -1,9 +1,11 @@
-import React, { useRef, useState } from 'react'
+import React, { useImperativeHandle, useRef, useState } from 'react'
 import './index.less'
 import { Battlefield } from '../../typings/battlefield'
 import useStore from '../../core/store/useStore'
 import classNames from 'classnames'
 import ZombiesMain from './Components/Zombie/ZombieMain'
+import { observer } from 'mobx-react'
+import gameController from '../../core/gameController'
 
 function Battlefield_(): JSX.Element {
   const battlefieldRef = useRef<HTMLDivElement>()
@@ -24,7 +26,20 @@ function Battlefield_(): JSX.Element {
     const gridRef = useRef<HTMLDivElement>()
     const [previewPlantSrc, setPreviewPlantSrc] = useState<null | string>(null)
     const { style: gridStyle, plant: gridPlant } = gridState
-
+    const plantHpRef = React.createRef() as Battlefield.PropsBase['plantHpRef']
+    const PlantHp = () => {
+      const plantHpRef_ = useRef<HTMLDivElement>()
+      useImperativeHandle(plantHpRef, () => ({
+        updateHp(width: `${number}%`): void {
+          plantHpRef_.current.style.width = width
+        },
+      }))
+      return (
+        <div className='plant-hp'>
+          <div className='hp-fill' ref={plantHpRef_}></div>
+        </div>
+      )
+    }
     return (
       <div
         ref={gridRef}
@@ -36,12 +51,16 @@ function Battlefield_(): JSX.Element {
         onMouseOut={outHidePreview}
       >
         {gridPlant !== null && (
-          <gridPlant.Component
-            battlefieldRef={battlefieldRef}
-            positionStyle={gridStyle}
-            clearPlant={clearPlant}
-            key={~~(Math.random() * 999999)}
-          />
+          <>
+            <gridPlant.Component
+              battlefieldRef={battlefieldRef}
+              positionStyle={gridStyle}
+              plantHpRef={plantHpRef}
+              removePlant={removePlant}
+              key={~~(Math.random() * 999999)}
+            />
+            <PlantHp />
+          </>
         )}
         {previewPlantSrc !== null && (
           <img className='battlefield-grid__preview' src={previewPlantSrc} />
@@ -49,7 +68,7 @@ function Battlefield_(): JSX.Element {
       </div>
     )
 
-    function clearPlant(): void {
+    function removePlant(): void {
       setGridState(state => ({ ...state, plant: null }))
     }
 
