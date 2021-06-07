@@ -21,7 +21,7 @@ export namespace Zombie {
   }
   export interface PropsBase {
     positionStyle: Battlefield.positionStyle
-    battlefieldRef: React.MutableRefObject<HTMLDivElement>
+    battlefieldElRef: React.MutableRefObject<HTMLDivElement>
     zombieConfig: ZombieConfig
     removeZombie(): void
   }

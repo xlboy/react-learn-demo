@@ -28,7 +28,7 @@ interface ZombieBase {
   attackTimer: NodeJS.Timeout | null
 }
 function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
-  const { positionStyle, battlefieldRef, removeZombie, zombieConfig } = props
+  const { positionStyle, battlefieldElRef, removeZombie, zombieConfig } = props
   let previousPosition: Zombie.PropsBase['positionStyle'] = { ...positionStyle }
   const zombieBase: ZombieBase = {
     defenseValue: zombieConfig.content.content.defenseValue,
@@ -70,7 +70,9 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
             zombieHpRef.current.style.width = `${(zombieBase.defenseValue / initHp) * 100}%`
             updateActiveContentPosition(previousPosition.left, previousPosition.top)
             setTimeout(() => {
-              requestAnimationFrame(animationLoop)
+              if (!gameController.isQuitGame) {
+                requestAnimationFrame(animationLoop)
+              }
             }, moveSpeed * 100)
           }
         })()
@@ -93,7 +95,7 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
       )
     }
 
-    return ReactDOM.createPortal(<Component />, battlefieldRef.current)
+    return ReactDOM.createPortal(<Component />, battlefieldElRef.current)
   }
 
   function zombieCollideCallback(
@@ -120,15 +122,20 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
           case ActiveType.Plant:
             const { attackSpeed } = zombieConfig.content.content
             zombieBase.isAttack = true
-            zombieBase.attackTimer = setInterval(() => {
-              // 定时，打植物，打残它
-              collideTarget.swapCallback(SwapType.NowAttack, collideSrouce)
-            }, attackSpeed * 1000)
+            if (zombieBase.attackTimer === null) {
+              zombieBase.attackTimer = setInterval(() => {
+                // 定时，打植物，打残它
+                collideTarget.swapCallback(SwapType.NowAttack, collideSrouce)
+              }, attackSpeed * 1000)
+            }
+
             return
         }
       }
     } else if (collideType === CollideType.NotXYAxleCollide) {
       zombieBase.isAttack = false
+      clearInterval(zombieBase.attackTimer)
+      zombieBase.attackTimer = null
     }
   }
 

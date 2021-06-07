@@ -9,6 +9,8 @@ import allZombieConfig from '../configs/allZombieConfig'
 import { Zombie } from '../../typings/zombie'
 import { Battlefield } from '../../typings/battlefield'
 import isElementCollide from './utils/isElementCollide'
+import { notification } from 'antd'
+
 import * as _ from 'lodash'
 class GameController {
   /* 装载记录当前活跃的内容(植物、打出的技能、僵尸) */
@@ -20,17 +22,23 @@ class GameController {
   }
   private zombieSlots: ZombieSlot[] = []
   private putZombieTimer: NodeJS.Timeout | null = null
-
+  private _isQuitGame: boolean = false
   constructor() {
     const detectCollide = () => this.detectContentCollide()
+    const self = this
     ;(function detectCollideLoop() {
       detectCollide()
       setTimeout(() => {
-        requestAnimationFrame(detectCollideLoop)
+        if (!self._isQuitGame) {
+          requestAnimationFrame(detectCollideLoop)
+        }
       }, 20)
     })()
   }
 
+  get isQuitGame(): boolean {
+    return this._isQuitGame
+  }
   startPutZombie(): void {
     ;(window as any).test = () => console.log(this)
     if (this.putZombieTimer === null) {
@@ -90,6 +98,22 @@ class GameController {
     }
   }
 
+  restartGame(): void {
+    this._isQuitGame = false
+    this.stopPutZomzbie()
+    this.activeContents = {}
+    this.updateActiveTags()
+  }
+  private gameOver(): void {
+    this._isQuitGame = true
+    clearInterval(this.putZombieTimer)
+    this.putZombieTimer = null
+    notification.info({
+      message: '系统提示',
+      duration: null,
+      description: '诶，菜逼，打不过僵尸，诶，又菜又爱玩',
+    })
+  }
   private detectContentCollide(): void {
     const plantActives = this.activeTags[ActiveType.Plant]
     const skillActives = this.activeTags[ActiveType.Skill]
@@ -114,6 +138,10 @@ class GameController {
     zombieLoop: for (let i = 0; i < zombieActives.length; i++) {
       const zombieTag = zombieActives[i]
       const zombieContent: ActiveContent = this.activeContents[zombieTag]
+      if (parseInt(zombieContent.left) <= -100) {
+        this.gameOver()
+        return void 0
+      }
       for (let i2 = plantActives.length; i2 > 0; i2--) {
         const plantTag = plantActives[i2 - 1]
         const plantContent: ActiveContent = this.activeContents[plantTag]
@@ -259,9 +287,6 @@ class GameController {
       const bContent: ActiveContent = this.activeContents[bTag]
       return parseInt(aContent.left) - parseInt(bContent.left)
     })
-    // this.activeTags[ActiveType.Plant].forEach(tag => {
-    //   console.log(this.activeContents[tag])
-    // })
   }
 }
 

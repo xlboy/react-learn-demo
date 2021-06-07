@@ -18,12 +18,46 @@
     img {
       width: 70%;
     }
-
+    .plant-message {
+      position: absolute;
+      min-width: 30px;
+      max-width: 150px;
+      min-height: 25px;
+      line-height: 20px;
+      padding: 2px 5px;
+      color: #fff;
+      font-size: 12px;
+      text-align: left;
+      z-index: 99;
+      display: inline;
+      left: 9px;
+      top: -7px;
+      text-decoration: none;
+      word-wrap: break-word;
+      background-color: rgba(0, 0, 0, 0.75);
+      border-radius: 2px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+      &::after {
+        position: absolute;
+        content: '';
+        display: block;
+        overflow: hidden;
+        pointer-events: none;
+        width: 0;
+        height: 0;
+        border-width: 0 5px 5px;
+        border-style: solid;
+        left: 10px;
+        transform: rotateZ(180deg);
+        border-color: transparent transparent black;
+        bottom: -4px;
+      }
+    }
     .plant-hp {
       width: 60px;
       height: 4px;
       position: absolute;
-      right: 0px;
+      right: 18px;
       bottom: -5px;
       border: 1px solid #66371a;
       box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.3);

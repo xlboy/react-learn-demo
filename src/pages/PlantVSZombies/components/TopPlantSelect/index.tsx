@@ -17,8 +17,8 @@ function TopPlantSelect(): JSX.Element {
   return (
     <div className='top-plant-select'>
       <div className='sun-card' onClick={() => {
-        setSunNumber(storeSunNumber + 100)
-        message.success('开挂开挂，太阳已加100')
+        setSunNumber(storeSunNumber + 1000)
+        message.success('开挂开挂，太阳已加1000')
       }}>
         <img src={require('@/assets/images/plant_vs_zombies/pic_sun.gif')} alt='阳光图' />
         <div className='sun-card__number'>{storeSunNumber}</div>

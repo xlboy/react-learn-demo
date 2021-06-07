@@ -1,4 +1,4 @@
-import { CSSProperties } from 'react'
+import { CSSProperties, Dispatch } from 'react'
 import { Plant } from './plant'
 
 export namespace Battlefield {
@@ -16,10 +16,14 @@ export namespace Battlefield {
 
   export interface PropsBase {
     positionStyle: Battlefield.positionStyle
-    battlefieldRef: React.MutableRefObject<HTMLDivElement>
+    battlefieldElRef: React.MutableRefObject<HTMLDivElement>
     removePlant(): void
-    plantHpRef: React.RefObject<{
+    plantHpContextRef: React.RefObject<{
       updateHp(width: string): void
     }>
+    plantMessageContextRef: React.RefObject<{
+      setMessage(message: string): void
+    }>
   }
+  export type RootContextRef = React.RefObject<(v: number) => void>
 }

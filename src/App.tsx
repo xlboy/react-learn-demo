@@ -1,4 +1,5 @@
-import { Spin } from 'antd'
+import { GithubOutlined } from '@ant-design/icons'
+import { Spin, Tooltip } from 'antd'
 import React, { Suspense } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import LeftNavs from './layouts/LeftNavs'
@@ -10,9 +11,11 @@ interface Page {
 }
 const pages: Page[] = [
   {
-    name: '植物大战僵尸',
+    name: '植物大战僵尸mini版',
     href: 'plant-zombies',
-    Component: React.lazy(() => import(/* webpackChunkName:"PlantVSZombies" */ '@/pages/PlantVSZombies')),
+    Component: React.lazy(
+      () => import(/* webpackChunkName:"PlantVSZombies" */ '@/pages/PlantVSZombies')
+    ),
   },
   {
     name: '宫格拼图游戏',
@@ -36,6 +39,7 @@ const pages: Page[] = [
   },
 ]
 
+const githubLink = 'https://github.com/xlboy/react-base'
 const App = () => {
   return (
     <>
@@ -51,6 +55,10 @@ const App = () => {
           </Suspense>
         </HashRouter>
       </div>
+      <Tooltip placement="left" title={githubLink}>
+        <GithubOutlined className='github-link' onClick={() => open(githubLink)} />
+      </Tooltip>
+      ,
     </>
   )
 }

@@ -26,7 +26,13 @@ interface PlantBase {
 }
 
 function Peas1(props: Peas1Props): JSX.Element {
-  const { positionStyle, battlefieldRef, removePlant, plantHpRef } = props
+  const {
+    positionStyle,
+    battlefieldElRef,
+    removePlant,
+    plantHpContextRef,
+    plantMessageContextRef,
+  } = props
 
   type Skill = (...args: any) => React.ReactPortal
   const [skills, setSkills] = useState<Skill[]>([LaunchBullet])
@@ -71,7 +77,7 @@ function Peas1(props: Peas1Props): JSX.Element {
         content: { hurtValue: plantBase.hurtValue },
         collideCallback: skillCollideCallback,
       })
-    return ReactDOM.createPortal(<Component />, battlefieldRef.current)
+    return ReactDOM.createPortal(<Component />, battlefieldElRef.current)
 
     function Component(): JSX.Element {
       const imgRef = useRef<HTMLImageElement>()
@@ -170,10 +176,13 @@ function Peas1(props: Peas1Props): JSX.Element {
     switch (swapType) {
       case SwapType.NowAttack:
         if (swapTarget.type === ActiveType.Zombie) {
+          // 避免植物死后，还受到了僵尸的攻击
+          if (plantBase.defenseValue <= 0) return
           const initHp = plantConfig.content.content.defenseValue
+          plantMessageContextRef.current.setMessage('…老子打不死你')
           const { hurtValue } = swapTarget.content.content.content
           plantBase.defenseValue -= hurtValue
-          plantHpRef.current.updateHp(`${(plantBase.defenseValue / initHp) * 100}%`)
+          plantHpContextRef.current.updateHp(`${(plantBase.defenseValue / initHp) * 100}%`)
           if (plantBase.defenseValue <= 0) {
             removePlantTag()
             removePlant()

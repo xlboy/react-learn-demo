@@ -22,10 +22,12 @@ export type ActiveTarget =
   | {
       type: ActiveType.Plant
       content: PlantConfig
+      swapCallback(swapType: SwapType, swapTarget: ActiveContent): void
     }
   | {
       type: ActiveType.Zombie
       content: ZombieConfig
+      swapCallback(swapType: SwapType, swapTarget: ActiveContent): void
     }
   | {
       type: ActiveType.Skill
@@ -47,7 +49,6 @@ export type ActiveContent = {
     collideTarget?: ActiveContent,
     collideSource?: ActiveContent
   ): void
-  swapCallback?(swapType: SwapType, swapTarget: ActiveContent): void
 } & ActiveTarget
 
 export interface ZombieSlot {

@@ -16,10 +16,10 @@ namespace ZombieSlot {
 }
 
 interface ZombieMainProps {
-  battlefieldRef: React.MutableRefObject<HTMLDivElement>
+  battlefieldElRef: React.MutableRefObject<HTMLDivElement>
 }
 function ZombieMain(props: ZombieMainProps): JSX.Element {
-  const { battlefieldRef } = props
+  const { battlefieldElRef } = props
   return (
     <>
       {new Array(50).fill(0).map((_, i) => (
@@ -63,7 +63,7 @@ function ZombieMain(props: ZombieMainProps): JSX.Element {
       setStartPosition,
     }))
     const zombieComponentProps: Zombie.PropsBase = {
-      battlefieldRef,
+      battlefieldElRef,
       removeZombie,
       zombieConfig,
       positionStyle: { ...startPosition },

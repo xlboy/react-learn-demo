@@ -1,4 +1,5 @@
 import Peas1 from '../../components/Battlefield/Components/Plants/Peas1'
+import Potatoes from '../../components/Battlefield/Components/Plants/Potatoes'
 import Sunflower from '../../components/Battlefield/Components/Plants/Sunflower'
 import { Battlefield } from '../../typings/battlefield'
 import { Plant } from '../../typings/plant'
@@ -44,6 +45,19 @@ const allPlantConfig: PlantConfig[] = [
         interval: 3,
         quantity: 50,
         defenseValue: 50,
+      },
+    },
+  },
+  {
+    name: '防御土豆',
+    image: require('@/assets/images/plant_vs_zombies/pic_potatoes_1.gif'),
+    sunNumber: 100,
+    buyIntervalTime: 5,
+    Component: Potatoes,
+    content: {
+      type: Plant.Type.Defensive,
+      content: {
+        defenseValue: 1000,
       },
     },
   },
