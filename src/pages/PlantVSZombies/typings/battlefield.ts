@@ -6,7 +6,7 @@ export namespace Battlefield {
     left: string
     top: string
   }
-  export interface GridProps {
+  export interface PlantGridProps {
     id: Symbol
     style: CSSProperties & positionStyle
     plant: {
@@ -18,12 +18,14 @@ export namespace Battlefield {
     positionStyle: Battlefield.positionStyle
     battlefieldElRef: React.MutableRefObject<HTMLDivElement>
     removePlant(): void
-    plantHpContextRef: React.RefObject<{
+    plantHpContextRef: React.MutableRefObject<{
       updateHp(width: string): void
     }>
-    plantMessageContextRef: React.RefObject<{
+    plantMessageContextRef: React.MutableRefObject<{
       setMessage(message: string): void
     }>
   }
-  export type RootContextRef = React.RefObject<(v: number) => void>
+  export type RootContextRef = React.MutableRefObject<{
+    refreshPlantGrids(): void
+  }>
 }

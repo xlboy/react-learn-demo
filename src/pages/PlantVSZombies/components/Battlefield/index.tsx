@@ -1,47 +1,51 @@
-import React, { useImperativeHandle, useRef, useState } from 'react'
+import React, { useEffect, useImperativeHandle, useRef, useState } from 'react'
 import './index.less'
-import { Battlefield } from '../../typings/battlefield'
+import { Battlefield as BattlefieldType } from '../../typings/battlefield'
 import useStore from '../../core/store/useStore'
 import classNames from 'classnames'
 import ZombiesMain from './Components/Zombie/ZombieMain'
 
-function Battlefield_(props: { rootContextRef: Battlefield.RootContextRef }): JSX.Element {
+function Battlefield(props: { rootContextRef: BattlefieldType.RootContextRef }): JSX.Element {
   const { rootContextRef } = props
   const battlefieldElRef = useRef<HTMLDivElement>()
   const store = useStore()
   return (
     <div className='battlefield' ref={battlefieldElRef}>
-      <CoreComponent />
+      <PlantGrid />
       <ZombiesMain battlefieldElRef={battlefieldElRef} />
     </div>
   )
 
-  function CoreComponent(): JSX.Element {
-    const battlefieldGrids = initBattlefieldGrids()
-    const [, refreshBattlefield] = useState()
-    useImperativeHandle(rootContextRef, () => refreshBattlefield as any)
+  function PlantGrid(): JSX.Element {
+    const plantGrids = initPlantGrids()
+    const [, refreshBattlefield] = useState(0)
+    useImperativeHandle(rootContextRef, () => ({
+      refreshPlantGrids: () => refreshBattlefield(v => v + 1),
+    }))
+    
     return (
       <>
-        {battlefieldGrids.map((grid, index) => (
-          <BattlefieldPlantGrid key={index} {...grid} />
+        {plantGrids.map((grid, index) => (
+          <PlantGrid key={index} {...grid} />
         ))}
       </>
     )
 
-    function BattlefieldPlantGrid(props: Battlefield.GridProps): JSX.Element {
-      const [gridState, setGridState] = useState<Battlefield.GridProps>(props)
+    function PlantGrid(props: BattlefieldType.PlantGridProps): JSX.Element {
+      const [gridState, setGridState] = useState<BattlefieldType.PlantGridProps>(props)
       const gridElRef = useRef<HTMLDivElement>()
       const [previewPlantSrc, setPreviewPlantSrc] = useState<null | string>(null)
       const { style: gridStyle, plant: gridPlant } = gridState
-      const plantHpContextRef = React.createRef() as Battlefield.PropsBase['plantHpContextRef']
+      const plantHpContextRef = React.useRef() as BattlefieldType.PropsBase['plantHpContextRef']
       const plantMessageContextRef =
-        React.createRef() as Battlefield.PropsBase['plantMessageContextRef']
+        React.useRef() as BattlefieldType.PropsBase['plantMessageContextRef']
+
       return (
         <div
           ref={gridElRef}
           className={classNames('battlefield-grid', { 'z-index-5': previewPlantSrc !== null })}
           style={gridStyle}
-          key={~~(Math.random() * 999999)}
+          key={Math.random().toString(36)}
           onClick={clickAddPlant}
           onMouseOver={overShowPreview}
           onMouseOut={outHidePreview}
@@ -54,7 +58,7 @@ function Battlefield_(props: { rootContextRef: Battlefield.RootContextRef }): JS
                 positionStyle={gridStyle}
                 plantHpContextRef={plantHpContextRef}
                 removePlant={removePlant}
-                key={~~(Math.random() * 999999)}
+                key={Math.random().toString()}
               />
               <PlantHp />
               <PlantMessage />
@@ -82,15 +86,15 @@ function Battlefield_(props: { rootContextRef: Battlefield.RootContextRef }): JS
       }
 
       function PlantHp(): JSX.Element {
-        const plantHpElRef_ = useRef<HTMLDivElement>()
+        const plantHpElRef = useRef<HTMLDivElement>()
         useImperativeHandle(plantHpContextRef, () => ({
           updateHp(width: string): void {
-            plantHpElRef_.current.style.width = width
+            plantHpElRef.current.style.width = width
           },
         }))
         return (
           <div className='plant-hp'>
-            <div className='hp-fill' ref={plantHpElRef_}></div>
+            <div className='hp-fill' ref={plantHpElRef}></div>
           </div>
         )
       }
@@ -126,11 +130,11 @@ function Battlefield_(props: { rootContextRef: Battlefield.RootContextRef }): JS
         }
       }
     }
-    function initBattlefieldGrids(): Battlefield.GridProps[] {
-      const grids: Battlefield.GridProps[] = []
+    function initPlantGrids(): BattlefieldType.PlantGridProps[] {
+      const grids: BattlefieldType.PlantGridProps[] = []
       for (let x = 0; x < 5; x++) {
         for (let y = 0; y < 10; y++) {
-          const grid: Battlefield.GridProps = {
+          const grid: BattlefieldType.PlantGridProps = {
             id: Symbol(),
             style: {
               left: `${110 * y}px`,
@@ -146,4 +150,4 @@ function Battlefield_(props: { rootContextRef: Battlefield.RootContextRef }): JS
   }
 }
 
-export default Battlefield_
+export default Battlefield

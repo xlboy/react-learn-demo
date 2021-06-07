@@ -2,21 +2,12 @@ import gameController from '@/pages/PlantVSZombies/core/gameController'
 import useAddRemoveActiveContent from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
 import {
   ActiveContent,
-  ActiveTarget,
   ActiveType,
   CollideType,
   SwapType,
 } from '@/pages/PlantVSZombies/typings/gameController'
 import { Zombie } from '@/pages/PlantVSZombies/typings/zombie'
-import React, {
-  CSSProperties,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from 'react'
+import React, { useEffect, useRef } from 'react'
 import ReactDOM from 'react-dom'
 interface OrdinaryZombieProps extends Zombie.PropsBase {}
 interface ZombieBase {
@@ -43,31 +34,27 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
     type: ActiveType.Zombie,
     content: { ...zombieConfig },
     collideCallback: zombieCollideCallback,
-    swapCallback: zombieSwapCallback,
+    swapCallback() {},
   })
 
-  return (
-    <>
-      <ZombieComponent />
-    </>
-  )
+  return <ZombieComponent />
 
   function ZombieComponent(): React.ReactPortal {
     const { moveSpeed, defenseValue: initHp } = zombieConfig.content.content
     const Component = () => {
-      const zombieRef = useRef<HTMLDivElement>()
-      const zombieHpRef = useRef<HTMLDivElement>()
+      const zombieElRef = useRef<HTMLDivElement>()
+      const zombieHpFillElRef = useRef<HTMLDivElement>()
       useEffect(() => {
         ;(function animationLoop() {
-          if (!zombieBase.isDeath && zombieRef.current) {
+          if (!zombieBase.isDeath && zombieElRef.current) {
             if (!zombieBase.isAttack) {
               previousPosition.left = `${parseInt(previousPosition.left) + -2}px`
-              zombieRef.current.style.left = previousPosition.left
-              zombieRef.current.classList.remove('zombie-attack')
-            } else if (zombieRef.current.className.indexOf('zombie-attack') === -1) {
-              zombieRef.current.classList.add('zombie-attack')
+              zombieElRef.current.style.left = previousPosition.left
+              zombieElRef.current.classList.remove('zombie-attack')
+            } else if (zombieElRef.current.className.indexOf('zombie-attack') === -1) {
+              zombieElRef.current.classList.add('zombie-attack')
             }
-            zombieHpRef.current.style.width = `${(zombieBase.defenseValue / initHp) * 100}%`
+            zombieHpFillElRef.current.style.width = `${(zombieBase.defenseValue / initHp) * 100}%`
             updateActiveContentPosition(previousPosition.left, previousPosition.top)
             setTimeout(() => {
               if (!gameController.isQuitGame) {
@@ -83,13 +70,13 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
       }, [])
 
       return (
-        <div ref={zombieRef} className='zombie-grid' style={positionStyle}>
+        <div ref={zombieElRef} className='zombie-grid' style={positionStyle}>
           <img
             src={zombieConfig.image}
             style={{ transform: `scale(${zombieConfig.zoomIndex || 1.2})` }}
           />
           <div className='zombie-hp'>
-            <div className='hp-fill' ref={zombieHpRef}></div>
+            <div className='hp-fill' ref={zombieHpFillElRef}></div>
           </div>
         </div>
       )
@@ -138,8 +125,6 @@ function OrdinaryZombie(props: OrdinaryZombieProps): JSX.Element {
       zombieBase.attackTimer = null
     }
   }
-
-  function zombieSwapCallback(swapType: SwapType, swapTarget: ActiveContent): void {}
 }
 
 export default OrdinaryZombie

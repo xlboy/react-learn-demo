@@ -168,7 +168,7 @@ function Peas1(props: Peas1Props): JSX.Element {
         }
         return
       case CollideType.XYAxleCollide:
-        console.log('我草泥马，逼崽子，你妈的哟，我叼你吗的哟')
+        console.log('碰起来了碰起来了')
     }
   }
 

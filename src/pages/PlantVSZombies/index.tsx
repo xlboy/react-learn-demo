@@ -1,26 +1,21 @@
 import { Button } from 'antd'
-import React, { FC, memo, useMemo, useState } from 'react'
-import Battlefield_ from './components/Battlefield'
+import React from 'react'
+import Battlefield from './components/Battlefield'
 import TopPlantSelect from './components/TopPlantSelect'
 import gameController from './core/gameController'
 import Provider from './core/store/Provider'
-import useStore from './core/store/useStore'
 import './index.less'
-import { Battlefield } from './typings/battlefield'
-
-
+import { Battlefield as BattlefieldType } from './typings/battlefield'
 
 function PlantVSZombies(): JSX.Element {
-  const store = useStore()
-  const rootContextRef = React.createRef() as Battlefield.RootContextRef
+  const rootContextRef = React.useRef() as BattlefieldType.RootContextRef
   const StartBtn = (): JSX.Element => {
     const onClick = () => {
       gameController.startPutZombie()
     }
     const restartGame = () => {
       gameController.restartGame()
-      rootContextRef.current(Math.random())
-      // console.log('rootContextRef', )
+      rootContextRef.current.refreshPlantGrids()
     }
     return (
       <div className='start-btn'>
@@ -36,7 +31,7 @@ function PlantVSZombies(): JSX.Element {
       <Provider>
         <StartBtn />
         <TopPlantSelect />
-        <Battlefield_ rootContextRef={rootContextRef} />
+        <Battlefield rootContextRef={rootContextRef} />
       </Provider>
     </div>
   )

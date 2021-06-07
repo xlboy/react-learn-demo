@@ -3,15 +3,12 @@ import ReactDOM from 'react-dom'
 import { Battlefield } from '@/pages/PlantVSZombies/typings/battlefield'
 import useStore from '@/pages/PlantVSZombies/core/store/useStore'
 import allPlantConfig, { PlantConfig } from '@/pages/PlantVSZombies/core/configs/allPlantConfig'
-import { Reproduction } from '@/pages/PlantVSZombies/typings/plant/reproduction'
-import { message } from 'antd'
 import useAddRemoveActiveContent, {
   AddRemoveActiveContentType,
 } from '@/pages/PlantVSZombies/core/gameController/useAddRemoveActiveContent'
 import {
   ActiveContent,
   ActiveType,
-  CollideType,
   SwapType,
 } from '@/pages/PlantVSZombies/typings/gameController'
 import { Plant } from '@/pages/PlantVSZombies/typings/plant'

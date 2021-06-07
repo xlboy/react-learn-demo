@@ -2,8 +2,7 @@ import { ZombieConfig } from '@/pages/PlantVSZombies/core/configs/allZombieConfi
 import gameController from '@/pages/PlantVSZombies/core/gameController'
 import { Zombie } from '@/pages/PlantVSZombies/typings/zombie'
 import _ from 'lodash'
-import React, { Dispatch, SetStateAction, useEffect, useImperativeHandle, useState } from 'react'
-import ReactDOM from 'react-dom'
+import React, { Dispatch, SetStateAction, useImperativeHandle, useState } from 'react'
 
 namespace ZombieSlot {
   export interface Props {
