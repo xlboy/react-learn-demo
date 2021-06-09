@@ -18,6 +18,7 @@ export enum ActiveType {
   Zombie = 'Zombie',
   Skill = 'Skill',
 }
+
 export type ActiveTarget =
   | {
       type: ActiveType.Plant

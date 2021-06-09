@@ -1,10 +1,10 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from 'react'
+import React, { useImperativeHandle, useRef, useState } from 'react'
 import './index.less'
 import { Battlefield as BattlefieldType } from '../../typings/battlefield'
 import useStore from '../../core/store/useStore'
 import classNames from 'classnames'
 import ZombiesMain from './Components/Zombie/ZombieMain'
-
+import gif from '@/assets/images/plant_vs_zombies/pic_potatoes_1.gif'
 function Battlefield(props: { rootContextRef: BattlefieldType.RootContextRef }): JSX.Element {
   const { rootContextRef } = props
   const battlefieldElRef = useRef<HTMLDivElement>()
@@ -22,7 +22,7 @@ function Battlefield(props: { rootContextRef: BattlefieldType.RootContextRef }):
     useImperativeHandle(rootContextRef, () => ({
       refreshPlantGrids: () => refreshBattlefield(v => v + 1),
     }))
-    
+
     return (
       <>
         {plantGrids.map((grid, index) => (
@@ -39,12 +39,15 @@ function Battlefield(props: { rootContextRef: BattlefieldType.RootContextRef }):
       const plantHpContextRef = React.useRef() as BattlefieldType.PropsBase['plantHpContextRef']
       const plantMessageContextRef =
         React.useRef() as BattlefieldType.PropsBase['plantMessageContextRef']
-
+      // console.log('哦，', previewPlantSrc)
       return (
         <div
           ref={gridElRef}
           className={classNames('battlefield-grid', { 'z-index-5': previewPlantSrc !== null })}
-          style={gridStyle}
+          style={{
+            ...gridStyle,
+            backgroundImage: `url(${previewPlantSrc})`,
+          }}
           key={Math.random().toString(36)}
           onClick={clickAddPlant}
           onMouseOver={overShowPreview}
@@ -63,9 +66,6 @@ function Battlefield(props: { rootContextRef: BattlefieldType.RootContextRef }):
               <PlantHp />
               <PlantMessage />
             </>
-          )}
-          {previewPlantSrc !== null && (
-            <img className='battlefield-grid__preview' src={previewPlantSrc} />
           )}
         </div>
       )
@@ -126,7 +126,7 @@ function Battlefield(props: { rootContextRef: BattlefieldType.RootContextRef }):
       function outHidePreview(): void {
         const { currentSelectPlant } = store
         if (currentSelectPlant) {
-          setPreviewPlantSrc(null)
+          setPreviewPlantSrc(() => null)
         }
       }
     }
