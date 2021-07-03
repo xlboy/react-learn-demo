@@ -1,0 +1,33 @@
+.order-wiring {
+  width: 1200px;
+  height: 800px;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  overflow: hidden;
+  border-radius: 5px;
+  box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.3);
+  font-family: 'loveNumber';
+  background: #80e4e7;
+  box-sizing: border-box;
+  padding: 20px;
+  &__ball {
+    height: 50px;
+    width: 50px;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border-radius: 100px;
+    background-color: gray;
+    text-align: center;
+    z-index: 10;
+    line-height: 50px;
+    font-size: 16px;
+    color: #fff;
+  }
+}
+
+@font-face {
+  font-family: 'loveNumber';
+  src: url('../../assets/fonts/Comicbon - personal use.ttf');
+}

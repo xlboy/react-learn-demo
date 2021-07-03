@@ -1,6 +1,6 @@
 import { GithubOutlined } from '@ant-design/icons'
 import { Spin, Tooltip } from 'antd'
-import React, { Suspense } from 'react'
+import React, { Suspense, useCallback } from 'react'
 import { HashRouter, Route, Switch } from 'react-router-dom'
 import LeftNavs from './layouts/LeftNavs'
 
@@ -33,6 +33,11 @@ const pages: Page[] = [
     Component: React.lazy(() => import(/* webpackChunkName:"Tower" */ '@/pages/Tower')),
   },
   {
+    name: '顺序连线',
+    href: 'order-wiring',
+    Component: React.lazy(() => import(/* webpackChunkName:"OrderWiring" */ '@/pages/OrderWiring')),
+  },
+  {
     name: '单词分割填空',
     href: 'fill-letter',
     Component: React.lazy(() => import(/* webpackChunkName:"FillLetter" */ '@/pages/FillLetter')),
@@ -55,7 +60,7 @@ const App = () => {
           </Suspense>
         </HashRouter>
       </div>
-      <Tooltip placement="left" title={githubLink}>
+      <Tooltip placement='left' title={githubLink}>
         <GithubOutlined className='github-link' onClick={() => open(githubLink)} />
       </Tooltip>
       ,
